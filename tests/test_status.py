@@ -2,28 +2,11 @@ from typing import Callable, Optional, Union
 import pytest
 import json
 from unittest.mock import MagicMock, patch
-from src.status import status
+from src.status import status, StatusResponse
 from datetime import datetime
 
 
 class TestStatusApi:
-
-    SYMBOLS = [
-        "USD_JPY",
-        "EUR_JPY",
-        "GBP_JPY",
-        "AUD_JPY",
-        "NZD_JPY",
-        "CAD_JPY",
-        "CHF_JPY",
-        "TRY_JPY",
-        "ZAR_JPY",
-        "MXN_JPY",
-        "EUR_USD",
-        "GBP_USD",
-        "AUD_USD",
-        "NZD_USD",
-    ]
 
     def create_response(
         self,
@@ -46,19 +29,19 @@ class TestStatusApi:
     def test_status_open(self, get_mock: MagicMock):
         get_mock.return_value = self.create_response(data={"status": "OPEN"})
         actual = status()
-        assert actual == "OPEN"
+        assert actual == StatusResponse("OPEN")
 
     @patch("src.status.get")
     def test_status_close(self, get_mock: MagicMock):
         get_mock.return_value = self.create_response(data={"status": "CLOSE"})
         actual = status()
-        assert actual == "CLOSE"
+        assert actual == StatusResponse("CLOSE")
 
     @patch("src.status.get")
     def test_status_maintenance(self, get_mock: MagicMock):
         get_mock.return_value = self.create_response(data={"status": "MAINTENANCE"})
         actual = status()
-        assert actual == "MAINTENANCE"
+        assert actual == StatusResponse("MAINTENANCE")
 
     @patch("src.status.get")
     def test_status_error(self, get_mock: MagicMock):
