@@ -1,19 +1,44 @@
 from dataclasses import dataclass
+from enum import auto, Enum
+from typing import Type
 from requests import get, Response
+
+
+class Status(Enum):
+    """
+    外国為替FXの稼動状態
+    """
+
+    OPEN = auto()  # オープン
+    CLOSE = auto()  # クローズ
+    MAINTENANCE = auto()  # メンテナンス
+
+    @classmethod
+    def from_str(cls, text: str) -> Type["Status"]:
+        match text:
+            case "OPEN":
+                return cls.OPEN
+            case "CLOSE":
+                return cls.CLOSE
+            case "MAINTENANCE":
+                return cls.MAINTENANCE
+        raise ValueError(f"不明なステータスです。: {text}")
 
 
 @dataclass
 class StatusResponse:
-    status: str
+    status: Status
 
 
-def status() -> StatusResponse:
-    response: Response = get(f"https://forex-api.coin.z.com/public/status")
+def get_status() -> StatusResponse:
+    response: Response = get("https://forex-api.coin.z.com/public/status")
     if response.status_code == 200:
         response_json = response.json()
         status = response_json["data"]["status"]
-        return StatusResponse(status)
+        return StatusResponse(Status.from_str(status))
 
     raise RuntimeError(
-        f"ステータスが取得できませんでした。\nstatus code: {response.status_code}\nresponse: {response.text}"
+        "ステータスが取得できませんでした。\n"
+        f"status code: {response.status_code}\n"
+        f"response: {response.text}"
     )

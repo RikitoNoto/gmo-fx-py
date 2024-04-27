@@ -2,7 +2,7 @@ from typing import Callable, Optional, Union
 import pytest
 import json
 from unittest.mock import MagicMock, patch
-from src.status import status, StatusResponse
+from src.status import get_status, Status, StatusResponse
 from datetime import datetime
 
 
@@ -28,23 +28,23 @@ class TestStatusApi:
     @patch("src.status.get")
     def test_status_open(self, get_mock: MagicMock):
         get_mock.return_value = self.create_response(data={"status": "OPEN"})
-        actual = status()
-        assert actual == StatusResponse("OPEN")
+        actual = get_status()
+        assert actual == StatusResponse(Status.OPEN)
 
     @patch("src.status.get")
     def test_status_close(self, get_mock: MagicMock):
         get_mock.return_value = self.create_response(data={"status": "CLOSE"})
-        actual = status()
-        assert actual == StatusResponse("CLOSE")
+        actual = get_status()
+        assert actual == StatusResponse(Status.CLOSE)
 
     @patch("src.status.get")
     def test_status_maintenance(self, get_mock: MagicMock):
         get_mock.return_value = self.create_response(data={"status": "MAINTENANCE"})
-        actual = status()
-        assert actual == StatusResponse("MAINTENANCE")
+        actual = get_status()
+        assert actual == StatusResponse(Status.MAINTENANCE)
 
     @patch("src.status.get")
     def test_status_error(self, get_mock: MagicMock):
         get_mock.return_value = self.create_response(status_code=404, text="Not Found")
         with pytest.raises(RuntimeError):
-            status()
+            get_status()
