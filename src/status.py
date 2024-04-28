@@ -31,7 +31,7 @@ class StatusResponse:
 
 
 def get_status() -> StatusResponse:
-    response: Response = get("https://forex-api.coin.z.com/public/status")
+    response: Response = get("https://forex-api.coin.z.com/public/v1/status")
     if response.status_code == 200:
         response_json = response.json()
         status = response_json["data"]["status"]
