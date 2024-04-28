@@ -1,8 +1,8 @@
-from typing import Callable, Optional, Union
+from typing import Optional, Union
 import pytest
 import json
 from unittest.mock import MagicMock, patch
-from src.status import get_status, Status, StatusResponse
+from gmo_fx.status import get_status, Status
 from datetime import datetime
 
 
@@ -25,25 +25,25 @@ class TestStatusApi:
         response.text = text or json.dumps(json_data)
         return response
 
-    @patch("src.status.get")
+    @patch("gmo_fx.status.get")
     def test_status_open(self, get_mock: MagicMock):
         get_mock.return_value = self.create_response(data={"status": "OPEN"})
         actual = get_status()
-        assert actual == StatusResponse(Status.OPEN)
+        assert actual.status == Status.OPEN
 
-    @patch("src.status.get")
+    @patch("gmo_fx.status.get")
     def test_status_close(self, get_mock: MagicMock):
         get_mock.return_value = self.create_response(data={"status": "CLOSE"})
         actual = get_status()
-        assert actual == StatusResponse(Status.CLOSE)
+        assert actual.status == Status.CLOSE
 
-    @patch("src.status.get")
+    @patch("gmo_fx.status.get")
     def test_status_maintenance(self, get_mock: MagicMock):
         get_mock.return_value = self.create_response(data={"status": "MAINTENANCE"})
         actual = get_status()
-        assert actual == StatusResponse(Status.MAINTENANCE)
+        assert actual.status == Status.MAINTENANCE
 
-    @patch("src.status.get")
+    @patch("gmo_fx.status.get")
     def test_status_error(self, get_mock: MagicMock):
         get_mock.return_value = self.create_response(status_code=404, text="Not Found")
         with pytest.raises(RuntimeError):

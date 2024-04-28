@@ -1,7 +1,7 @@
-from dataclasses import dataclass
 from enum import auto, Enum
 from typing import Type
 from requests import get, Response
+from gmo_fx.response import Response as ResponseBase
 
 
 class Status(Enum):
@@ -25,17 +25,19 @@ class Status(Enum):
         raise ValueError(f"不明なステータスです。: {text}")
 
 
-@dataclass
-class StatusResponse:
+class StatusResponse(ResponseBase):
     status: Status
+
+    def __init__(self, response: dict):
+        super().__init__(response)
+        self.status = Status.from_str(response["data"]["status"])
 
 
 def get_status() -> StatusResponse:
     response: Response = get("https://forex-api.coin.z.com/public/v1/status")
     if response.status_code == 200:
         response_json = response.json()
-        status = response_json["data"]["status"]
-        return StatusResponse(Status.from_str(status))
+        return StatusResponse(response_json)
 
     raise RuntimeError(
         "ステータスが取得できませんでした。\n"
