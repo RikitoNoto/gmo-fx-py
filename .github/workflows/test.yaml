@@ -22,8 +22,5 @@ jobs:
         pip install .
 
     - name: Run pytest
-      env:
-        PYTHONPATH: gmo_fx/
       run: |
-        cd tests
         pytest
