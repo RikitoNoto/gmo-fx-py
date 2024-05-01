@@ -1,6 +1,4 @@
-from typing import Callable, Optional, Union
-import pytest
-import json
+from typing import Callable, Optional
 from unittest.mock import MagicMock, patch
 from gmo_fx.symbols import Symbol
 from gmo_fx.ticker import get_ticker

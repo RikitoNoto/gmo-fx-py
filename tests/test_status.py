@@ -1,9 +1,5 @@
-from typing import Optional, Union
-import pytest
-import json
 from unittest.mock import MagicMock, patch
 from gmo_fx.status import get_status, Status
-from datetime import datetime
 
 from tests.api_test_base import ApiTestBase
 
