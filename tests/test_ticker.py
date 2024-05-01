@@ -1,13 +1,13 @@
-from typing import Callable, Optional, Union
-import pytest
-import json
+from typing import Callable, Optional
 from unittest.mock import MagicMock, patch
 from gmo_fx.symbols import Symbol
 from gmo_fx.ticker import get_ticker
 from datetime import datetime
 
+from tests.api_test_base import ApiTestBase
 
-class TestTickerApi:
+
+class TestTickerApi(ApiTestBase):
     SYMBOLS = [
         "USD_JPY",
         "EUR_JPY",
@@ -66,31 +66,9 @@ class TestTickerApi:
         exchange_data_builder = exchange_data_builder or self.create_ticker_data
         return [exchange_data_builder(symbol) for symbol in self.SYMBOLS]
 
-    def create_response(
-        self,
-        data: Optional[Union[dict, list]] = None,
-        status_code: int = 200,
-        text: Optional[str] = None,
-    ) -> MagicMock:
-        response = MagicMock()
-        response.status_code = status_code
-        json_data = {
-            "status": 0,
-            "data": data,
-            "responsetime": datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
-        }
-        response.json.return_value = json_data
-        response.text = text or json.dumps(json_data)
-        return response
-
     @patch("gmo_fx.ticker.get")
     def test_ticker_error(self, get_mock: MagicMock):
-        get_mock.return_value = self.create_response(
-            status_code=404,
-            text="Not Found",
-        )
-        with pytest.raises(RuntimeError):
-            get_ticker()
+        self.check_404_error(get_mock, lambda: get_ticker())
 
     @patch("gmo_fx.ticker.get")
     def test_should_get_symbols_from_ticker(self, get_mock: MagicMock):
