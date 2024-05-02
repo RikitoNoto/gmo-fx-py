@@ -1,8 +1,12 @@
+import re
 from typing import Callable, Optional
 from unittest.mock import MagicMock, patch
+
+import pytest
 from gmo_fx.klines import get_klines
 from datetime import datetime
 
+from gmo_fx.symbols import Symbol
 from tests.api_test_base import ApiTestBase
 
 
@@ -32,7 +36,7 @@ class TestKlineApi(ApiTestBase):
 
     @patch("gmo_fx.klines.get")
     def test_klines_error(self, get_mock: MagicMock):
-        self.check_404_error(get_mock, lambda: get_klines())
+        self.check_404_error(get_mock, lambda: get_klines(Symbol.USD_JPY))
 
     @patch("gmo_fx.klines.get")
     def test_should_get_klines_from_response_klines_accesser(self, get_mock: MagicMock):
@@ -58,10 +62,38 @@ class TestKlineApi(ApiTestBase):
                 ),
             )
         )
-        klines_response = get_klines()
+        klines_response = get_klines(Symbol.USD_JPY)
         for i, expect in enumerate(expect_klines):
             assert klines_response.klines[i].open_time == expect["openTime"]
             assert klines_response.klines[i].open == expect["open"]
             assert klines_response.klines[i].high == expect["high"]
             assert klines_response.klines[i].low == expect["low"]
             assert klines_response.klines[i].close == expect["close"]
+
+    symbol_strs = [
+        (Symbol.USD_JPY, "USD_JPY"),
+        (Symbol.EUR_JPY, "EUR_JPY"),
+        (Symbol.GBP_JPY, "GBP_JPY"),
+        (Symbol.AUD_JPY, "AUD_JPY"),
+        (Symbol.NZD_JPY, "NZD_JPY"),
+        (Symbol.CAD_JPY, "CAD_JPY"),
+        (Symbol.CHF_JPY, "CHF_JPY"),
+        (Symbol.TRY_JPY, "TRY_JPY"),
+        (Symbol.ZAR_JPY, "ZAR_JPY"),
+        (Symbol.MXN_JPY, "MXN_JPY"),
+        (Symbol.EUR_USD, "EUR_USD"),
+        (Symbol.GBP_USD, "GBP_USD"),
+        (Symbol.AUD_USD, "AUD_USD"),
+        (Symbol.NZD_USD, "NZD_USD"),
+    ]
+
+    @pytest.mark.parametrize("symbol, symbol_str", symbol_strs)
+    @patch("gmo_fx.klines.get")
+    def test_should_call_get_with_symbol(
+        self, get_mock: MagicMock, symbol: Symbol, symbol_str: str
+    ):
+        get_mock.return_value = self.create_response(data=self.create_klines(1))
+        get_klines(symbol)
+        param_match = re.search("\?(.*)", get_mock.mock_calls[0].args[0])
+        param = param_match.group(1)
+        assert f"symbol={symbol_str}" in param
