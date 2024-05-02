@@ -2,6 +2,7 @@ from enum import auto, Enum
 from typing import Type
 from requests import get, Response
 from gmo_fx.response import Response as ResponseBase
+from gmo_fx.urls import BASE_URL_PUBLIC
 
 
 class Status(Enum):
@@ -34,7 +35,7 @@ class StatusResponse(ResponseBase):
 
 
 def get_status() -> StatusResponse:
-    response: Response = get("https://forex-api.coin.z.com/public/v1/status")
+    response: Response = get(f"{BASE_URL_PUBLIC}/status")
     if response.status_code == 200:
         response_json = response.json()
         return StatusResponse(response_json)
