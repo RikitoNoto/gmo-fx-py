@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime
+from enum import Enum
+from typing import Literal
 from requests import get, Response
 from gmo_fx.response import Response as ResponseBase
 from gmo_fx.symbols import Symbol
@@ -35,9 +37,9 @@ class KlinesResponse(ResponseBase):
         ]
 
 
-def get_klines(symbol: Symbol) -> KlinesResponse:
+def get_klines(symbol: Symbol, price_type: Literal["BID", "ASK"]) -> KlinesResponse:
     base_url = f"{BASE_URL_PUBLIC}/klines"
-    response: Response = get(f"{base_url}?symbol={symbol.value}")
+    response: Response = get(f"{base_url}?symbol={symbol.value}&priceType={price_type}")
     if response.status_code == 200:
         response_json = response.json()
         return KlinesResponse(response_json)

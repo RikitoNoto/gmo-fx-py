@@ -36,7 +36,7 @@ class TestKlineApi(ApiTestBase):
 
     @patch("gmo_fx.klines.get")
     def test_klines_error(self, get_mock: MagicMock):
-        self.check_404_error(get_mock, lambda: get_klines(Symbol.USD_JPY))
+        self.check_404_error(get_mock, lambda: get_klines(Symbol.USD_JPY, "BID"))
 
     @patch("gmo_fx.klines.get")
     def test_should_get_klines_from_response_klines_accesser(self, get_mock: MagicMock):
@@ -62,13 +62,29 @@ class TestKlineApi(ApiTestBase):
                 ),
             )
         )
-        klines_response = get_klines(Symbol.USD_JPY)
+        klines_response = get_klines(Symbol.USD_JPY, "BID")
         for i, expect in enumerate(expect_klines):
             assert klines_response.klines[i].open_time == expect["openTime"]
             assert klines_response.klines[i].open == expect["open"]
             assert klines_response.klines[i].high == expect["high"]
             assert klines_response.klines[i].low == expect["low"]
             assert klines_response.klines[i].close == expect["close"]
+
+    def check_url_parameter(
+        self,
+        get_mock: MagicMock,
+        symbol: Symbol = Symbol.USD_JPY,
+        symbol_str: str = "USD_JPY",
+        price_type: str = "ASK",
+        price_type_str: str = "ASK",
+    ) -> None:
+
+        get_mock.return_value = self.create_response(data=self.create_klines(1))
+        get_klines(symbol, price_type)
+        param_match = re.search("\?(.*)", get_mock.mock_calls[0].args[0])
+        param = param_match.group(1)
+        assert f"symbol={symbol_str}" in param
+        assert f"priceType={price_type_str}" in param
 
     symbol_strs = [
         (Symbol.USD_JPY, "USD_JPY"),
@@ -92,8 +108,24 @@ class TestKlineApi(ApiTestBase):
     def test_should_call_get_with_symbol(
         self, get_mock: MagicMock, symbol: Symbol, symbol_str: str
     ):
-        get_mock.return_value = self.create_response(data=self.create_klines(1))
-        get_klines(symbol)
-        param_match = re.search("\?(.*)", get_mock.mock_calls[0].args[0])
-        param = param_match.group(1)
-        assert f"symbol={symbol_str}" in param
+        self.check_url_parameter(
+            get_mock,
+            symbol=symbol,
+            symbol_str=symbol_str,
+        )
+
+    price_type_strs = [
+        ("BID", "BID"),
+        ("ASK", "ASK"),
+    ]
+
+    @pytest.mark.parametrize("price_type, price_type_str", price_type_strs)
+    @patch("gmo_fx.klines.get")
+    def test_should_call_get_with_price_type(
+        self, get_mock: MagicMock, price_type: str, price_type_str: str
+    ):
+        self.check_url_parameter(
+            get_mock,
+            price_type=price_type,
+            price_type_str=price_type_str,
+        )
