@@ -3,7 +3,7 @@ from typing import Callable, Optional
 from unittest.mock import MagicMock, patch
 
 import pytest
-from gmo_fx.klines import get_klines
+from gmo_fx.klines import get_klines, KlineInterval
 from datetime import datetime
 
 from gmo_fx.symbols import Symbol
@@ -36,7 +36,9 @@ class TestKlineApi(ApiTestBase):
 
     @patch("gmo_fx.klines.get")
     def test_klines_error(self, get_mock: MagicMock):
-        self.check_404_error(get_mock, lambda: get_klines(Symbol.USD_JPY, "BID"))
+        self.check_404_error(
+            get_mock, lambda: get_klines(Symbol.USD_JPY, "BID", KlineInterval.Min1)
+        )
 
     @patch("gmo_fx.klines.get")
     def test_should_get_klines_from_response_klines_accesser(self, get_mock: MagicMock):
@@ -62,7 +64,7 @@ class TestKlineApi(ApiTestBase):
                 ),
             )
         )
-        klines_response = get_klines(Symbol.USD_JPY, "BID")
+        klines_response = get_klines(Symbol.USD_JPY, "BID", KlineInterval.Min1)
         for i, expect in enumerate(expect_klines):
             assert klines_response.klines[i].open_time == expect["openTime"]
             assert klines_response.klines[i].open == expect["open"]
@@ -77,14 +79,17 @@ class TestKlineApi(ApiTestBase):
         symbol_str: str = "USD_JPY",
         price_type: str = "ASK",
         price_type_str: str = "ASK",
+        interval=KlineInterval.Min1,
+        interval_str="1min",
     ) -> None:
 
         get_mock.return_value = self.create_response(data=self.create_klines(1))
-        get_klines(symbol, price_type)
+        get_klines(symbol, price_type, interval)
         param_match = re.search("\?(.*)", get_mock.mock_calls[0].args[0])
         param = param_match.group(1)
         assert f"symbol={symbol_str}" in param
         assert f"priceType={price_type_str}" in param
+        assert f"interval={interval_str}" in param
 
     symbol_strs = [
         (Symbol.USD_JPY, "USD_JPY"),
@@ -128,4 +133,30 @@ class TestKlineApi(ApiTestBase):
             get_mock,
             price_type=price_type,
             price_type_str=price_type_str,
+        )
+
+    interval_strs = [
+        (KlineInterval.Min1, "1min"),
+        (KlineInterval.Min5, "5min"),
+        (KlineInterval.Min10, "10min"),
+        (KlineInterval.Min15, "15min"),
+        (KlineInterval.Min30, "30min"),
+        (KlineInterval.H1, "1hour"),
+        (KlineInterval.H4, "4hour"),
+        (KlineInterval.H8, "8hour"),
+        (KlineInterval.H12, "12hour"),
+        (KlineInterval.D1, "1day"),
+        (KlineInterval.W1, "1week"),
+        (KlineInterval.M1, "1month"),
+    ]
+
+    @pytest.mark.parametrize("interval, interval_str", interval_strs)
+    @patch("gmo_fx.klines.get")
+    def test_should_call_get_with_interval(
+        self, get_mock: MagicMock, interval: KlineInterval, interval_str: str
+    ):
+        self.check_url_parameter(
+            get_mock,
+            interval=interval,
+            interval_str=interval_str,
         )
