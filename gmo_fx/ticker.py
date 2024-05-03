@@ -1,10 +1,9 @@
 from dataclasses import dataclass
 from datetime import datetime
-from enum import auto, Enum
-from typing import Type
 from requests import get, Response
 from gmo_fx.response import Response as ResponseBase
 from gmo_fx.symbols import Symbol
+from gmo_fx.urls import BASE_URL_PUBLIC
 
 
 @dataclass
@@ -37,7 +36,7 @@ class TickerResponse(ResponseBase):
 
 
 def get_ticker() -> TickerResponse:
-    response: Response = get("https://forex-api.coin.z.com/public/v1/ticker")
+    response: Response = get(f"{BASE_URL_PUBLIC}/ticker")
     if response.status_code == 200:
         response_json = response.json()
         return TickerResponse(response_json)
