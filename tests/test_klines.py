@@ -37,7 +37,13 @@ class TestKlineApi(ApiTestBase):
     @patch("gmo_fx.klines.get")
     def test_klines_error(self, get_mock: MagicMock):
         self.check_404_error(
-            get_mock, lambda: get_klines(Symbol.USD_JPY, "BID", KlineInterval.Min1)
+            get_mock,
+            lambda: get_klines(
+                Symbol.USD_JPY,
+                "BID",
+                KlineInterval.Min1,
+                datetime(2024, 1, 1),
+            ),
         )
 
     @patch("gmo_fx.klines.get")
@@ -64,7 +70,12 @@ class TestKlineApi(ApiTestBase):
                 ),
             )
         )
-        klines_response = get_klines(Symbol.USD_JPY, "BID", KlineInterval.Min1)
+        klines_response = get_klines(
+            Symbol.USD_JPY,
+            "BID",
+            KlineInterval.Min1,
+            datetime(2024, 1, 1),
+        )
         for i, expect in enumerate(expect_klines):
             assert klines_response.klines[i].open_time == expect["openTime"]
             assert klines_response.klines[i].open == expect["open"]
@@ -81,15 +92,18 @@ class TestKlineApi(ApiTestBase):
         price_type_str: str = "ASK",
         interval=KlineInterval.Min1,
         interval_str="1min",
+        date: datetime = datetime(2024, 1, 1),
+        date_str: str = "20240101",
     ) -> None:
 
         get_mock.return_value = self.create_response(data=self.create_klines(1))
-        get_klines(symbol, price_type, interval)
+        get_klines(symbol, price_type, interval, date)
         param_match = re.search("\?(.*)", get_mock.mock_calls[0].args[0])
         param = param_match.group(1)
         assert f"symbol={symbol_str}" in param
         assert f"priceType={price_type_str}" in param
         assert f"interval={interval_str}" in param
+        assert f"date={date_str}" in param
 
     symbol_strs = [
         (Symbol.USD_JPY, "USD_JPY"),
@@ -150,13 +164,32 @@ class TestKlineApi(ApiTestBase):
         (KlineInterval.M1, "1month"),
     ]
 
-    @pytest.mark.parametrize("interval, interval_str", interval_strs)
+    date_strs = [
+        # datetime, interval, string
+        (datetime(2024, 1, 1, 10, 23, 12), KlineInterval.Min1, "20240101"),
+        (datetime(2024, 1, 1, 10, 23, 12), KlineInterval.Min5, "20240101"),
+        (datetime(2024, 1, 1, 10, 23, 12), KlineInterval.Min10, "20240101"),
+        (datetime(2024, 1, 1, 10, 23, 12), KlineInterval.Min15, "20240101"),
+        (datetime(2024, 1, 1, 10, 23, 12), KlineInterval.Min30, "20240101"),
+        (datetime(2024, 1, 1, 10, 23, 12), KlineInterval.H1, "20240101"),
+        (datetime(2024, 1, 1, 10, 23, 12), KlineInterval.H4, "2024"),
+        (datetime(2024, 1, 1, 10, 23, 12), KlineInterval.H8, "2024"),
+        (datetime(2024, 1, 1, 10, 23, 12), KlineInterval.H12, "2024"),
+        (datetime(2024, 1, 1, 10, 23, 12), KlineInterval.D1, "2024"),
+        (datetime(2024, 1, 1, 10, 23, 12), KlineInterval.W1, "2024"),
+        (datetime(2024, 1, 1, 10, 23, 12), KlineInterval.M1, "2024"),
+    ]
+
+    @pytest.mark.parametrize("date, interval, string", date_strs)
     @patch("gmo_fx.klines.get")
-    def test_should_call_get_with_interval(
-        self, get_mock: MagicMock, interval: KlineInterval, interval_str: str
+    def test_should_call_get_with_date(
+        self, get_mock: MagicMock, date: datetime, interval: KlineInterval, string: str
     ):
+        interval_map = dict(self.interval_strs)
         self.check_url_parameter(
             get_mock,
             interval=interval,
-            interval_str=interval_str,
+            interval_str=interval_map[interval],
+            date=date,
+            date_str=string,
         )

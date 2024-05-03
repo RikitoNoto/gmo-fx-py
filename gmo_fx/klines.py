@@ -53,14 +53,28 @@ class KlinesResponse(ResponseBase):
 
 
 def get_klines(
-    symbol: Symbol, price_type: Literal["BID", "ASK"], interval: KlineInterval
+    symbol: Symbol,
+    price_type: Literal["BID", "ASK"],
+    interval: KlineInterval,
+    date: datetime,
 ) -> KlinesResponse:
+    date_str = f"{date.year:04}"
+    if interval in (
+        KlineInterval.Min1,
+        KlineInterval.Min5,
+        KlineInterval.Min10,
+        KlineInterval.Min15,
+        KlineInterval.Min30,
+        KlineInterval.H1,
+    ):
+        date_str += f"{date.month:02}{date.day:02}"
     base_url = f"{BASE_URL_PUBLIC}/klines"
     response: Response = get(
         f"{base_url}?"
         f"symbol={symbol.value}"
         f"&priceType={price_type}"
         f"&interval={interval.value}"
+        f"&date={date_str}"
     )
     if response.status_code == 200:
         response_json = response.json()
