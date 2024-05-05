@@ -1,5 +1,4 @@
 from setuptools import setup, find_packages
-import gmo_fx
 
 DESCRIPTION = "GMO社のFX API用Pythonライブラリ"
 NAME = "gmo_fx"
@@ -8,7 +7,7 @@ AUTHOR_EMAIL = "rikitonoto@gmail.com"
 URL = "https://github.com/RikitoNoto/gmo-fx-py"
 LICENSE = "MIT"
 DOWNLOAD_URL = "https://github.com/RikitoNoto/gmo-fx-py"
-VERSION = gmo_fx.__version__
+VERSION = "0.1.0"
 INSTALL_REQUIRES = [
     "requests>=2.31.0",
 ]
