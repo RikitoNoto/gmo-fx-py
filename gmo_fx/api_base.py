@@ -1,6 +1,9 @@
+import time
+
 from abc import ABC, abstractmethod
-from typing import Any
+from datetime import datetime
 from gmo_fx.response import Response
+from typing import Any
 
 
 class ApiBase(ABC):
@@ -19,4 +22,7 @@ class PrivateApiBase(ApiBase):
     ) -> dict:
         return {
             "API-KEY": self._api_key,
+            "API-TIMESTAMP": "{0}000".format(
+                int(time.mktime(datetime.now().timetuple()))
+            ),
         }
