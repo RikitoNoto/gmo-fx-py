@@ -6,8 +6,9 @@ import time
 from abc import ABC, abstractmethod
 from datetime import datetime
 from enum import auto, Enum
-from gmo_fx.response import Response
-from typing import Any
+from gmo_fx.response import Response as ApiResponse
+from requests import get, Response
+from typing import Any, Optional
 
 
 class ApiBase(ABC):
@@ -15,6 +16,8 @@ class ApiBase(ABC):
     class _HttpMethod(Enum):
         GET = "GET"
         POST = "POST"
+
+    VERSION = "v1"
 
     @property
     @abstractmethod
@@ -27,11 +30,16 @@ class ApiBase(ABC):
         pass
 
     @property
+    @abstractmethod
+    def _endpoint(self) -> str:
+        pass
+
+    @property
     def _body(self) -> dict:
         return {}
 
     @abstractmethod
-    def __call__(self, *args: Any, **kwds: Any) -> Response:
+    def __call__(self, *args: Any, **kwds: Any) -> ApiResponse:
         pass
 
     def _create_header(
@@ -39,12 +47,36 @@ class ApiBase(ABC):
     ) -> dict:
         return {}
 
+    def _call_api(
+        self,
+        path_query: Optional[str] = None,
+    ) -> Response:
+        if self._method == self._HttpMethod.GET:
+            url = f"{self._endpoint}/{self.VERSION}/{self._path}"
+            if path_query:
+                url += f"?{path_query}"
+            return get(
+                url,
+                headers=self._create_header(),
+            )
+        raise ValueError
+
+
+class PublicApiBase(ApiBase, ABC):
+    @property
+    def _endpoint(self) -> str:
+        return "https://forex-api.coin.z.com/public"
+
 
 class PrivateApiBase(ApiBase, ABC):
     def __init__(self, api_key: str, secret_key: str) -> None:
         self._api_key = api_key
         self.__secret_key = secret_key
         super().__init__()
+
+    @property
+    def _endpoint(self) -> str:
+        return "https://forex-api.coin.z.com/private"
 
     def _create_header(
         self,

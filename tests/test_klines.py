@@ -1,16 +1,16 @@
 import re
-from typing import Callable, Optional
+from typing import Callable, Literal, Optional
 from unittest.mock import MagicMock, patch
 
 import pytest
-from gmo_fx.klines import get_klines, KlineInterval
+from gmo_fx import KlinesApi, KlinesResponse, get_klines, KlineInterval
 from datetime import datetime
 
 from gmo_fx.symbols import Symbol
 from tests.api_test_base import ApiTestBase
 
 
-class TestKlineApi(ApiTestBase):
+class TestKlinesApi(ApiTestBase):
 
     def create_kline(
         self,
@@ -28,25 +28,45 @@ class TestKlineApi(ApiTestBase):
             "close": str(close),
         }
 
+    def call_api(
+        self,
+        symbol: Symbol,
+        price_type: Literal["BID", "ASK"],
+        interval: KlineInterval,
+        date: datetime,
+    ) -> KlinesResponse:
+        return KlinesApi()(
+            symbol,
+            price_type,
+            interval,
+            date,
+        )
+
     def create_klines(
         self, size: int, kline_builder: Optional[Callable[[int], dict]] = None
     ) -> list[dict]:
         kline_builder = kline_builder or (lambda i: self.create_kline())
         return [kline_builder(i) for i in range(size)]
 
-    @patch("gmo_fx.klines.get")
+    @patch("gmo_fx.api_base.get")
     def test_klines_error(self, get_mock: MagicMock):
         self.check_404_error(
             get_mock,
-            lambda: get_klines(
+            lambda: self.call_api(
                 Symbol.USD_JPY,
                 "BID",
                 KlineInterval.Min1,
                 datetime(2024, 1, 1),
             ),
+            #     get_klines(
+            #     Symbol.USD_JPY,
+            #     "BID",
+            #     KlineInterval.Min1,
+            #     datetime(2024, 1, 1),
+            # ),
         )
 
-    @patch("gmo_fx.klines.get")
+    @patch("gmo_fx.api_base.get")
     def test_should_get_klines_from_response_klines_accesser(self, get_mock: MagicMock):
         expect_klines = [
             {
@@ -70,7 +90,7 @@ class TestKlineApi(ApiTestBase):
                 ),
             )
         )
-        klines_response = get_klines(
+        klines_response = self.call_api(
             Symbol.USD_JPY,
             "BID",
             KlineInterval.Min1,
@@ -97,7 +117,7 @@ class TestKlineApi(ApiTestBase):
     ) -> None:
 
         get_mock.return_value = self.create_response(data=self.create_klines(1))
-        get_klines(symbol, price_type, interval, date)
+        self.call_api(symbol, price_type, interval, date)
         param_match = re.search("\?(.*)", get_mock.mock_calls[0].args[0])
         param = param_match.group(1)
         assert f"symbol={symbol_str}" in param
@@ -123,7 +143,7 @@ class TestKlineApi(ApiTestBase):
     ]
 
     @pytest.mark.parametrize("symbol, symbol_str", symbol_strs)
-    @patch("gmo_fx.klines.get")
+    @patch("gmo_fx.api_base.get")
     def test_should_call_get_with_symbol(
         self, get_mock: MagicMock, symbol: Symbol, symbol_str: str
     ):
@@ -139,7 +159,7 @@ class TestKlineApi(ApiTestBase):
     ]
 
     @pytest.mark.parametrize("price_type, price_type_str", price_type_strs)
-    @patch("gmo_fx.klines.get")
+    @patch("gmo_fx.api_base.get")
     def test_should_call_get_with_price_type(
         self, get_mock: MagicMock, price_type: str, price_type_str: str
     ):
@@ -181,7 +201,7 @@ class TestKlineApi(ApiTestBase):
     ]
 
     @pytest.mark.parametrize("date, interval, string", date_strs)
-    @patch("gmo_fx.klines.get")
+    @patch("gmo_fx.api_base.get")
     def test_should_call_get_with_date(
         self, get_mock: MagicMock, date: datetime, interval: KlineInterval, string: str
     ):

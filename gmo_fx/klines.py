@@ -3,6 +3,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Literal
 from requests import get, Response
+from gmo_fx.api_base import PublicApiBase
 from gmo_fx.response import Response as ResponseBase
 from gmo_fx.symbols import Symbol
 from gmo_fx.urls import BASE_URL_PUBLIC
@@ -52,36 +53,45 @@ class KlinesResponse(ResponseBase):
         ]
 
 
-def get_klines(
-    symbol: Symbol,
-    price_type: Literal["BID", "ASK"],
-    interval: KlineInterval,
-    date: datetime,
-) -> KlinesResponse:
-    date_str = f"{date.year:04}"
-    if interval in (
-        KlineInterval.Min1,
-        KlineInterval.Min5,
-        KlineInterval.Min10,
-        KlineInterval.Min15,
-        KlineInterval.Min30,
-        KlineInterval.H1,
-    ):
-        date_str += f"{date.month:02}{date.day:02}"
-    base_url = f"{BASE_URL_PUBLIC}/klines"
-    response: Response = get(
-        f"{base_url}?"
-        f"symbol={symbol.value}"
-        f"&priceType={price_type}"
-        f"&interval={interval.value}"
-        f"&date={date_str}"
-    )
-    if response.status_code == 200:
-        response_json = response.json()
-        return KlinesResponse(response_json)
+class KlinesApi(PublicApiBase):
 
-    raise RuntimeError(
-        "Klineが取得できませんでした。\n"
-        f"status code: {response.status_code}\n"
-        f"response: {response.text}"
-    )
+    @property
+    def _path(self) -> str:
+        return f"/{self.VERSION}/klines"
+
+    @property
+    def _method(self) -> PublicApiBase._HttpMethod:
+        return self._HttpMethod.GET
+
+    def __call__(
+        self,
+        symbol: Symbol,
+        price_type: Literal["BID", "ASK"],
+        interval: KlineInterval,
+        date: datetime,
+    ) -> KlinesResponse:
+        date_str = f"{date.year:04}"
+        if interval in (
+            KlineInterval.Min1,
+            KlineInterval.Min5,
+            KlineInterval.Min10,
+            KlineInterval.Min15,
+            KlineInterval.Min30,
+            KlineInterval.H1,
+        ):
+            date_str += f"{date.month:02}{date.day:02}"
+        response: Response = self._call_api(
+            path_query=f"symbol={symbol.value}"
+            f"&priceType={price_type}"
+            f"&interval={interval.value}"
+            f"&date={date_str}"
+        )
+        if response.status_code == 200:
+            response_json = response.json()
+            return KlinesResponse(response_json)
+
+        raise RuntimeError(
+            "Klineが取得できませんでした。\n"
+            f"status code: {response.status_code}\n"
+            f"response: {response.text}"
+        )
