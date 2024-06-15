@@ -1,6 +1,7 @@
 from enum import auto, Enum
 from typing import Type
 from requests import get, Response
+from gmo_fx.api_base import PublicApiBase
 from gmo_fx.response import Response as ResponseBase
 from gmo_fx.urls import BASE_URL_PUBLIC
 
@@ -45,3 +46,29 @@ def get_status() -> StatusResponse:
         f"status code: {response.status_code}\n"
         f"response: {response.text}"
     )
+
+
+class StatusApi(PublicApiBase):
+
+    @property
+    def _path(self) -> str:
+        return f"/{self.VERSION}/status"
+
+    @property
+    def _method(self) -> PublicApiBase._HttpMethod:
+        return self._HttpMethod.GET
+
+    def __call__(
+        self,
+    ) -> StatusResponse:
+
+        response: Response = self._call_api()
+        if response.status_code == 200:
+            response_json = response.json()
+            return StatusResponse(response_json)
+
+        raise RuntimeError(
+            "ステータスが取得できませんでした。\n"
+            f"status code: {response.status_code}\n"
+            f"response: {response.text}"
+        )
