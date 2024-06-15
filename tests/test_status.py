@@ -1,5 +1,5 @@
 from unittest.mock import MagicMock, patch
-from gmo_fx.status import StatusApi, StatusResponse, Status
+from gmo_fx.api.status import StatusApi, StatusResponse, Status
 
 from tests.api_test_base import ApiTestBase
 

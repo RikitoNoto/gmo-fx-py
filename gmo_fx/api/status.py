@@ -2,7 +2,7 @@ from enum import auto, Enum
 from typing import Type
 from requests import get, Response
 from gmo_fx.api_base import PublicApiBase
-from gmo_fx.response import Response as ResponseBase
+from api.response import Response as ResponseBase
 from gmo_fx.urls import BASE_URL_PUBLIC
 
 

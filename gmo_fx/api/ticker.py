@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime
 from requests import get, Response
-from gmo_fx.response import Response as ResponseBase
+from api.response import Response as ResponseBase
 from gmo_fx.symbols import Symbol
 from gmo_fx.urls import BASE_URL_PUBLIC
 

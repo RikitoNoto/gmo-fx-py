@@ -6,7 +6,7 @@ import time
 from abc import ABC, abstractmethod
 from datetime import datetime
 from enum import auto, Enum
-from gmo_fx.response import Response as ApiResponse
+from api.response import Response as ApiResponse
 from requests import get, Response
 from typing import Any, Optional
 
