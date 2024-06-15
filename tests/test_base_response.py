@@ -1,6 +1,6 @@
 import pytest
 from gmo_fx.errors import ApiError
-from api.response import Response
+from gmo_fx.api.response import Response
 from datetime import datetime
 
 

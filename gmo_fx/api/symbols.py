@@ -1,9 +1,10 @@
 from dataclasses import dataclass
 from enum import Enum
-from api.response import Response as ResponseBase
+from gmo_fx.api.api_base import PublicApiBase
+from gmo_fx.api.response import Response as ResponseBase
 from gmo_fx.symbols import Symbol
-from gmo_fx.urls import BASE_URL_PUBLIC
 from requests import get, Response
+from gmo_fx.urls import BASE_URL_PUBLIC
 
 
 @dataclass
@@ -46,3 +47,19 @@ def get_symbols() -> SymbolsResponse:
         f"status code: {response.status_code}\n"
         f"response: {response.text}"
     )
+
+
+class SymbolsApi(PublicApiBase):
+
+    @property
+    def _path(self) -> str:
+        return f"/{self.VERSION}/status"
+
+    @property
+    def _method(self) -> PublicApiBase._HttpMethod:
+        return self._HttpMethod.GET
+
+    def __call__(
+        self,
+    ) -> SymbolsResponse:
+        pass

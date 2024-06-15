@@ -70,11 +70,11 @@ class TestSymbolsApi(ApiTestBase):
         )
         return [symbols_data_builder(symbol) for symbol in self.SYMBOLS]
 
-    @patch("gmo_fx.api_base.get")
+    @patch("gmo_fx.api.api_base.get")
     def test_symbols_error(self, get_mock: MagicMock):
         self.check_404_error(get_mock, lambda: self.call_api())
 
-    @patch("gmo_fx.api_base.get")
+    @patch("gmo_fx.api.api_base.get")
     def test_should_get_symbols_from_symbols(self, get_mock: MagicMock):
         get_mock.return_value = self.create_response(data=self.create_symbols_data())
         symbols_response = self.call_api()
@@ -85,7 +85,7 @@ class TestSymbolsApi(ApiTestBase):
         else:
             assert len(symbols) == 0
 
-    @patch("gmo_fx.api_base.get")
+    @patch("gmo_fx.api.api_base.get")
     def test_should_get_min_open_order_size_from_symbols(self, get_mock: MagicMock):
         def fixture_min_open_order_size(symbol: str):
             return self.SYMBOLS.index(symbol) * 100
@@ -103,7 +103,7 @@ class TestSymbolsApi(ApiTestBase):
                 self.SYMBOLS_TABLE[rule.symbol]
             )
 
-    @patch("gmo_fx.api_base.get")
+    @patch("gmo_fx.api.api_base.get")
     def test_should_get_max_order_size_from_symbols(self, get_mock: MagicMock):
         def fixture_max_order_size(symbol: str):
             return self.SYMBOLS.index(symbol) * 100
@@ -121,7 +121,7 @@ class TestSymbolsApi(ApiTestBase):
                 self.SYMBOLS_TABLE[rule.symbol]
             )
 
-    @patch("gmo_fx.api_base.get")
+    @patch("gmo_fx.api.api_base.get")
     def test_should_get_size_step_from_symbols(self, get_mock: MagicMock):
         def fixture_size_step(symbol: str):
             return self.SYMBOLS.index(symbol) * 100
@@ -137,7 +137,7 @@ class TestSymbolsApi(ApiTestBase):
         for rule in rules:
             assert rule.size_step == fixture_size_step(self.SYMBOLS_TABLE[rule.symbol])
 
-    @patch("gmo_fx.api_base.get")
+    @patch("gmo_fx.api.api_base.get")
     def test_should_get_tick_size_from_symbols(self, get_mock: MagicMock):
         def fixture_tick_size(symbol: str):
             return (self.SYMBOLS.index(symbol) / 3) * 100

@@ -49,7 +49,7 @@ class TestKlinesApi(ApiTestBase):
         kline_builder = kline_builder or (lambda i: self.create_kline())
         return [kline_builder(i) for i in range(size)]
 
-    @patch("gmo_fx.api_base.get")
+    @patch("gmo_fx.api.api_base.get")
     def test_klines_error(self, get_mock: MagicMock):
         self.check_404_error(
             get_mock,
@@ -67,7 +67,7 @@ class TestKlinesApi(ApiTestBase):
             # ),
         )
 
-    @patch("gmo_fx.api_base.get")
+    @patch("gmo_fx.api.api_base.get")
     def test_should_get_klines_from_response_klines_accesser(self, get_mock: MagicMock):
         expect_klines = [
             {
@@ -144,7 +144,7 @@ class TestKlinesApi(ApiTestBase):
     ]
 
     @pytest.mark.parametrize("symbol, symbol_str", symbol_strs)
-    @patch("gmo_fx.api_base.get")
+    @patch("gmo_fx.api.api_base.get")
     def test_should_call_get_with_symbol(
         self, get_mock: MagicMock, symbol: Symbol, symbol_str: str
     ):
@@ -160,7 +160,7 @@ class TestKlinesApi(ApiTestBase):
     ]
 
     @pytest.mark.parametrize("price_type, price_type_str", price_type_strs)
-    @patch("gmo_fx.api_base.get")
+    @patch("gmo_fx.api.api_base.get")
     def test_should_call_get_with_price_type(
         self, get_mock: MagicMock, price_type: str, price_type_str: str
     ):
@@ -202,7 +202,7 @@ class TestKlinesApi(ApiTestBase):
     ]
 
     @pytest.mark.parametrize("date, interval, string", date_strs)
-    @patch("gmo_fx.api_base.get")
+    @patch("gmo_fx.api.api_base.get")
     def test_should_call_get_with_date(
         self, get_mock: MagicMock, date: datetime, interval: KlineInterval, string: str
     ):
