@@ -80,17 +80,20 @@ class KlinesApi(PublicApiBase):
             KlineInterval.H1,
         ):
             date_str += f"{date.month:02}{date.day:02}"
-        response: Response = self._call_api(
+
+        return super().__call__(
             path_query=f"symbol={symbol.value}"
             f"&priceType={price_type}"
             f"&interval={interval.value}"
             f"&date={date_str}"
         )
-        if response.status_code == 200:
-            response_json = response.json()
-            return KlinesResponse(response_json)
 
-        raise RuntimeError(
+    @property
+    def _response_parser(self):
+        return KlinesResponse
+
+    def _api_error_message(self, response: Response):
+        return (
             "Klineが取得できませんでした。\n"
             f"status code: {response.status_code}\n"
             f"response: {response.text}"

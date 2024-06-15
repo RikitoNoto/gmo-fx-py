@@ -8,7 +8,7 @@ from datetime import datetime
 from enum import auto, Enum
 from gmo_fx.api.response import Response as ApiResponse
 from requests import get, Response
-from typing import Any, Optional
+from typing import Any, Optional, Type
 
 
 class ApiBase(ABC):
@@ -38,9 +38,25 @@ class ApiBase(ABC):
     def _body(self) -> dict:
         return {}
 
-    @abstractmethod
     def __call__(self, *args: Any, **kwds: Any) -> ApiResponse:
+
+        response: Response = self._call_api(*args, **kwds)
+        if response.status_code == 200:
+            response_json = response.json()
+            return self._response_parser(response_json)
+
+        raise RuntimeError(self._api_error_message(response))
+
+    @property
+    def _response_parser(self) -> Type[ApiResponse]:
         pass
+
+    def _api_error_message(self, response: Response):
+        return (
+            "APIの実行に失敗しました。\n"
+            f"status code: {response.status_code}\n"
+            f"response: {response.text}"
+        )
 
     def _create_header(
         self,
