@@ -36,19 +36,6 @@ class TickerResponse(ResponseBase):
         ]
 
 
-def get_ticker() -> TickerResponse:
-    response: Response = get(f"{BASE_URL_PUBLIC}/ticker")
-    if response.status_code == 200:
-        response_json = response.json()
-        return TickerResponse(response_json)
-
-    raise RuntimeError(
-        "最新レートが取得できませんでした。\n"
-        f"status code: {response.status_code}\n"
-        f"response: {response.text}"
-    )
-
-
 class TickerApi(PublicApiBase):
 
     @property

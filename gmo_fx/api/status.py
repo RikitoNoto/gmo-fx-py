@@ -35,19 +35,6 @@ class StatusResponse(ResponseBase):
         self.status = Status.from_str(response["data"]["status"])
 
 
-def get_status() -> StatusResponse:
-    response: Response = get(f"{BASE_URL_PUBLIC}/status")
-    if response.status_code == 200:
-        response_json = response.json()
-        return StatusResponse(response_json)
-
-    raise RuntimeError(
-        "ステータスが取得できませんでした。\n"
-        f"status code: {response.status_code}\n"
-        f"response: {response.text}"
-    )
-
-
 class StatusApi(PublicApiBase):
 
     @property
