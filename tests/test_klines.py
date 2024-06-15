@@ -3,7 +3,7 @@ from typing import Callable, Literal, Optional
 from unittest.mock import MagicMock, patch
 
 import pytest
-from gmo_fx import KlinesApi, KlinesResponse, get_klines, KlineInterval
+from gmo_fx import KlinesApi, KlinesResponse, KlineInterval
 from datetime import datetime
 
 from gmo_fx.symbols import Symbol
