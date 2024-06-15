@@ -53,7 +53,7 @@ class SymbolsApi(PublicApiBase):
 
     @property
     def _path(self) -> str:
-        return f"/{self.VERSION}/status"
+        return f"/{self.VERSION}/symbols"
 
     @property
     def _method(self) -> PublicApiBase._HttpMethod:
@@ -62,4 +62,13 @@ class SymbolsApi(PublicApiBase):
     def __call__(
         self,
     ) -> SymbolsResponse:
-        pass
+        response: Response = self._call_api()
+        if response.status_code == 200:
+            response_json = response.json()
+            return SymbolsResponse(response_json)
+
+        raise RuntimeError(
+            "取引ルールが取得できませんでした。\n"
+            f"status code: {response.status_code}\n"
+            f"response: {response.text}"
+        )
