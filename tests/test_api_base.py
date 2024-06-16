@@ -4,8 +4,8 @@ import json
 import time
 import time_machine
 from datetime import datetime
-from gmo_fx.api_base import PrivateApiBase
-from gmo_fx.response import Response
+from gmo_fx.api.api_base import PrivateApiBase
+from gmo_fx.api.response import Response
 from typing import Any
 
 
