@@ -98,7 +98,9 @@ class PrivateApiBase(ApiBase, ABC):
         self,
     ) -> dict:
         timestamp = "{0}000".format(int(time.mktime(datetime.now().timetuple())))
-        text = timestamp + self._method.value + self._path + json.dumps(self._body)
+        text = timestamp + self._method.value + self._path
+        if self._method == self._HttpMethod.POST:
+            text += json.dumps(self._body)
         sign = hmac.new(
             bytes(self.__secret_key.encode("ascii")),
             bytes(text.encode("ascii")),
