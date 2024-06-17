@@ -66,8 +66,26 @@ class TestPrivateApiBase:
 
     @time_machine.travel(datetime(2024, 1, 3))
     def test_api_sign_get(self):
-
         method = "GET"
+        path = "/v1/test"
+        body = {"a": "a"}
+        header = PrivateApiBaseStub(
+            api_key="api_key", secret_key="secret", method=method, path=path, body=body
+        ).header
+        timestamp = "{0}000".format(int(time.mktime(datetime.now().timetuple())))
+        text = timestamp + method + path
+        assert (
+            header["API-SIGN"]
+            == hmac.new(
+                bytes("secret".encode("ascii")),
+                bytes(text.encode("ascii")),
+                hashlib.sha256,
+            ).hexdigest()
+        )
+
+    @time_machine.travel(datetime(2024, 1, 3))
+    def test_api_sign_post(self):
+        method = "POST"
         path = "/v1/test"
         body = {"a": "a"}
         header = PrivateApiBaseStub(
