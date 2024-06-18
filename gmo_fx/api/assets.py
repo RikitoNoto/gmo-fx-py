@@ -28,14 +28,14 @@ class AssetsResponse(ResponseBase):
         self.assets = [
             Asset(
                 equity=d["equity"],
-                available_amount=0,
-                balance=0,
-                estimated_trade_fee=0.0,
-                margin=0,
-                margin_ratio=0.0,
-                position_loss_gain=0.0,
-                total_swap=0.0,
-                transferable_amount=0,
+                available_amount=d["availableAmount"],
+                balance=d["balance"],
+                estimated_trade_fee=d["estimatedTradeFee"],
+                margin=d["margin"],
+                margin_ratio=d["marginRatio"],
+                position_loss_gain=d["positionLossGain"],
+                total_swap=d["totalSwap"],
+                transferable_amount=d["transferableAmount"],
             )
             for d in data
         ]
