@@ -125,10 +125,23 @@ class TestPositionSummaryApi(ApiTestBase):
         assert symbols[0] == Symbol.USD_JPY
 
     @patch("gmo_fx.api.api_base.get")
-    def test_should_get_position_symbol_usd_jpy(self, get_mock: MagicMock):
+    def test_should_get_position_symbol_gbp_usd(self, get_mock: MagicMock):
         get_mock.return_value = self.create_response(
             data=[self.create_position_summary_data(symbol="GBP_USD")]
         )
         response = self.call_api()
         symbols = [position.symbol for position in response.positions]
         assert symbols[0] == Symbol.GBP_USD
+
+    @patch("gmo_fx.api.api_base.get")
+    def test_should_get_some_positions(self, get_mock: MagicMock):
+        get_mock.return_value = self.create_response(
+            data=[
+                self.create_position_summary_data(symbol="USD_JPY"),
+                self.create_position_summary_data(symbol="GBP_USD"),
+            ]
+        )
+        response = self.call_api()
+        symbols = [position.symbol for position in response.positions]
+        assert symbols[0] == Symbol.USD_JPY
+        assert symbols[1] == Symbol.GBP_USD
