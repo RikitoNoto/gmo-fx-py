@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from enum import Enum
 from gmo_fx.api.api_base import PublicApiBase
 from gmo_fx.api.response import Response as ResponseBase
-from gmo_fx.symbols import Symbol
+from gmo_fx.common import Symbol
 from requests import get, Response
 from gmo_fx.urls import BASE_URL_PUBLIC
 

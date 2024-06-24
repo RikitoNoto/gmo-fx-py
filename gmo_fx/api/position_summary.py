@@ -3,7 +3,7 @@ from enum import Enum
 from requests import Response
 from gmo_fx.api.api_base import PrivateApiBase
 from gmo_fx.api.response import Response as ResponseBase
-from gmo_fx.symbols import Symbol
+from gmo_fx.common import Symbol
 
 
 @dataclass

@@ -7,7 +7,7 @@ from gmo_fx.api.klines import KlinesApi, KlinesResponse, KlineInterval
 
 from datetime import datetime
 
-from gmo_fx.symbols import Symbol
+from gmo_fx.common import Symbol
 from tests.api_test_base import ApiTestBase
 
 
