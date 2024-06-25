@@ -1,7 +1,7 @@
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from typing import Callable, Optional
 from unittest.mock import MagicMock, patch
-from gmo_fx.common import Side, Symbol
+from gmo_fx.common import SettleType, Side, Symbol
 from gmo_fx.api.latest_executions import (
     Execution,
     LatestExecutionsApi,
@@ -52,7 +52,9 @@ class TestLatestExecutionsApi(ApiTestBase):
             "lossGain": f"{loss_gain}",
             "fee": f"{fee}",
             "settledSwap": f"{settled_swap}",
-            "timestamp": timestamp.strftime("%Y-%m-%dT%H:%M:%S.%f%Z"),
+            "timestamp": timestamp.astimezone(timezone.utc).strftime(
+                "%Y-%m-%dT%H:%M:%S.%fZ"
+            ),
         }
 
     @patch("gmo_fx.api.api_base.get")
@@ -116,10 +118,95 @@ class TestLatestExecutionsApi(ApiTestBase):
         assert symbols[0] == Symbol.NZD_USD
 
     @patch("gmo_fx.api.api_base.get")
-    def test_should_get_side(self, get_mock: MagicMock):
+    def test_should_get_side_buy(self, get_mock: MagicMock):
         get_mock.return_value = self.create_response(
             data=[self.create_execution_data(side="BUY")]
         )
         response = self.call_api()
         sides = [execution.side for execution in response.executions]
         assert sides[0] == Side.BUY
+
+    @patch("gmo_fx.api.api_base.get")
+    def test_should_get_side_sell(self, get_mock: MagicMock):
+        get_mock.return_value = self.create_response(
+            data=[self.create_execution_data(side="SELL")]
+        )
+        response = self.call_api()
+        sides = [execution.side for execution in response.executions]
+        assert sides[0] == Side.SELL
+
+    @patch("gmo_fx.api.api_base.get")
+    def test_should_get_settle_type_open(self, get_mock: MagicMock):
+        get_mock.return_value = self.create_response(
+            data=[self.create_execution_data(settle_type="OPEN")]
+        )
+        response = self.call_api()
+        settle_types = [execution.settle_type for execution in response.executions]
+        assert settle_types[0] == SettleType.OPEN
+
+    @patch("gmo_fx.api.api_base.get")
+    def test_should_get_settle_type_close(self, get_mock: MagicMock):
+        get_mock.return_value = self.create_response(
+            data=[self.create_execution_data(settle_type="CLOSE")]
+        )
+        response = self.call_api()
+        settle_types = [execution.settle_type for execution in response.executions]
+        assert settle_types[0] == SettleType.CLOSE
+
+    @patch("gmo_fx.api.api_base.get")
+    def test_should_get_size(self, get_mock: MagicMock):
+        get_mock.return_value = self.create_response(
+            data=[self.create_execution_data(size=100)]
+        )
+        response = self.call_api()
+        sizes = [execution.size for execution in response.executions]
+        assert sizes[0] == 100
+
+    @patch("gmo_fx.api.api_base.get")
+    def test_should_get_price(self, get_mock: MagicMock):
+        get_mock.return_value = self.create_response(
+            data=[self.create_execution_data(price=100.5)]
+        )
+        response = self.call_api()
+        prices = [execution.price for execution in response.executions]
+        assert prices[0] == 100.5
+
+    @patch("gmo_fx.api.api_base.get")
+    def test_should_get_loss_gain(self, get_mock: MagicMock):
+        get_mock.return_value = self.create_response(
+            data=[self.create_execution_data(loss_gain=30)]
+        )
+        response = self.call_api()
+        loss_gains = [execution.loss_gain for execution in response.executions]
+        assert loss_gains[0] == 30
+
+    @patch("gmo_fx.api.api_base.get")
+    def test_should_get_fee(self, get_mock: MagicMock):
+        get_mock.return_value = self.create_response(
+            data=[self.create_execution_data(fee=40)]
+        )
+        response = self.call_api()
+        fees = [execution.fee for execution in response.executions]
+        assert fees[0] == 40
+
+    @patch("gmo_fx.api.api_base.get")
+    def test_should_get_settled_swap(self, get_mock: MagicMock):
+        get_mock.return_value = self.create_response(
+            data=[self.create_execution_data(settled_swap=40.4)]
+        )
+        response = self.call_api()
+        settled_swaps = [execution.settled_swap for execution in response.executions]
+        assert settled_swaps[0] == 40.4
+
+    @patch("gmo_fx.api.api_base.get")
+    def test_should_get_timestamp(self, get_mock: MagicMock):
+        get_mock.return_value = self.create_response(
+            data=[self.create_execution_data(timestamp=datetime(2024, 1, 2, 20, 11))]
+        )
+        response = self.call_api()
+        timestamps = [execution.timestamp for execution in response.executions]
+        delta = (
+            datetime(2024, 1, 2, 20, 11, tzinfo=timezone(timedelta(hours=9)))
+            - timestamps[0]
+        )
+        assert delta.seconds == 0

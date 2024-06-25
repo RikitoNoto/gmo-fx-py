@@ -1,10 +1,10 @@
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from requests import Response
 from gmo_fx.api.api_base import PrivateApiBase
 from gmo_fx.api.response import Response as ResponseBase
-from gmo_fx.common import Side, Symbol
+from gmo_fx.common import SettleType, Side, Symbol
 
 
 @dataclass
@@ -42,13 +42,15 @@ class LatestExecutionsResponse(ResponseBase):
                 position_id=d["positionId"],
                 symbol=Symbol(d["symbol"]),
                 side=Side(d["side"]),
-                settle_type="CLOSE",
-                size=1,
-                price=0.0,
-                loss_gain=0,
-                fee=0,
-                settled_swap=0.0,
-                timestamp=datetime.now(),
+                settle_type=SettleType(d["settleType"]),
+                size=int(d["size"]),
+                price=float(d["price"]),
+                loss_gain=int(d["lossGain"]),
+                fee=int(d["fee"]),
+                settled_swap=float(d["settledSwap"]),
+                timestamp=datetime.strptime(
+                    d["timestamp"], "%Y-%m-%dT%H:%M:%S.%fZ"
+                ).replace(tzinfo=timezone.utc),
             )
             for d in data
         ]
