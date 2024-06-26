@@ -76,3 +76,10 @@ class LatestExecutionsApi(PrivateApiBase):
             f"status code: {response.status_code}\n"
             f"response: {response.text}"
         )
+
+    def __call__(
+        self,
+        symbol: Symbol,
+        count: int = 100,
+    ) -> LatestExecutionsResponse:
+        return super().__call__(path_query=f"symbol={symbol.value}" f"&count={count}")

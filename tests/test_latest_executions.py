@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+import re
 from typing import Callable, Optional
 from unittest.mock import MagicMock, patch
 from gmo_fx.common import SettleType, Side, Symbol
@@ -15,11 +16,13 @@ class TestLatestExecutionsApi(ApiTestBase):
 
     def call_api(
         self,
+        symbol: Symbol = Symbol.USD_JPY,
+        count: int=100,
     ) -> LatestExecutionsResponse:
         return LatestExecutionsApi(
             api_key="",
             secret_key="",
-        )()
+        )(symbol, count)
 
     def create_execution_data(
         self,
@@ -210,3 +213,28 @@ class TestLatestExecutionsApi(ApiTestBase):
             - timestamps[0]
         )
         assert delta.seconds == 0
+
+    @patch("gmo_fx.api.api_base.get")
+    def test_should_set_url_symbol(self, get_mock: MagicMock):
+
+        get_mock.return_value = self.create_response(
+            data=[self.create_execution_data()]
+        )
+        response = self.call_api(symbol=Symbol.EUR_USD)
+
+        param_match = re.search("\?(.*)", get_mock.mock_calls[0].args[0])
+        param = param_match.group(1)
+        assert f"symbol=EUR_USD" in param
+
+    @patch("gmo_fx.api.api_base.get")
+    def test_should_set_url_count(self, get_mock: MagicMock):
+
+        get_mock.return_value = self.create_response(
+            data=[self.create_execution_data()]
+        )
+        response = self.call_api(count=20)
+
+        param_match = re.search("\?(.*)", get_mock.mock_calls[0].args[0])
+        param = param_match.group(1)
+        assert f"count=20" in param
+
