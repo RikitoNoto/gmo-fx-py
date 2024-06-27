@@ -17,7 +17,7 @@ class TestLatestExecutionsApi(ApiTestBase):
     def call_api(
         self,
         symbol: Symbol = Symbol.USD_JPY,
-        count: int=100,
+        count: int = 100,
     ) -> LatestExecutionsResponse:
         return LatestExecutionsApi(
             api_key="",
@@ -204,14 +204,15 @@ class TestLatestExecutionsApi(ApiTestBase):
     @patch("gmo_fx.api.api_base.get")
     def test_should_get_timestamp(self, get_mock: MagicMock):
         get_mock.return_value = self.create_response(
-            data=[self.create_execution_data(timestamp=datetime(2024, 1, 2, 20, 11))]
+            data=[
+                self.create_execution_data(
+                    timestamp=datetime(2024, 1, 2, 20, 11, tzinfo=timezone.utc)
+                )
+            ]
         )
         response = self.call_api()
         timestamps = [execution.timestamp for execution in response.executions]
-        delta = (
-            datetime(2024, 1, 2, 20, 11, tzinfo=timezone(timedelta(hours=9)))
-            - timestamps[0]
-        )
+        delta = datetime(2024, 1, 2, 20, 11, tzinfo=timezone.utc) - timestamps[0]
         assert delta.seconds == 0
 
     @patch("gmo_fx.api.api_base.get")
@@ -237,4 +238,3 @@ class TestLatestExecutionsApi(ApiTestBase):
         param_match = re.search("\?(.*)", get_mock.mock_calls[0].args[0])
         param = param_match.group(1)
         assert f"count=20" in param
-
