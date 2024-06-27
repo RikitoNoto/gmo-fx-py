@@ -1,6 +1,6 @@
 from typing import Callable, Optional
 from unittest.mock import MagicMock, patch
-from gmo_fx.symbols import Symbol
+from gmo_fx.common import Symbol
 from gmo_fx.api.assets import AssetsApi, AssetsResponse
 
 from tests.api_test_base import ApiTestBase
