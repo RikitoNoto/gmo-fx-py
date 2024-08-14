@@ -12,10 +12,10 @@ pip install gmo-fx
 そのメソッドを実行することで、APIの呼び出しを行います。
 ※例：「KLine情報の取得」APIの場合
 ```python
-from gmo_fx import get_klines, KlineInterval, Symbol
+from gmo_fx import KlinesApi, KlineInterval, Symbol
 from datetime import datetime
 
-response = get_klines(
+response = KlinesApi()(
   symbol=Symbol.USD_JPY,
   price_type="BID",
   interval=KlineInterval.M1, # 1分足

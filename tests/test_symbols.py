@@ -1,7 +1,7 @@
 from typing import Callable, Optional
 from unittest.mock import MagicMock, patch
-from gmo_fx.symbols import get_symbols, Symbol
-from datetime import datetime
+from gmo_fx.common import Symbol
+from gmo_fx.api.symbols import SymbolsApi, SymbolsResponse
 
 from tests.api_test_base import ApiTestBase
 
@@ -41,6 +41,11 @@ class TestSymbolsApi(ApiTestBase):
         Symbol.NZD_USD: "NZD_USD",
     }
 
+    def call_api(
+        self,
+    ) -> SymbolsResponse:
+        return SymbolsApi()()
+
     def create_symbol_data(
         self,
         symbol: str = "USD_JPY",
@@ -65,14 +70,14 @@ class TestSymbolsApi(ApiTestBase):
         )
         return [symbols_data_builder(symbol) for symbol in self.SYMBOLS]
 
-    @patch("gmo_fx.symbols.get")
+    @patch("gmo_fx.api.api_base.get")
     def test_symbols_error(self, get_mock: MagicMock):
-        self.check_404_error(get_mock, lambda: get_symbols())
+        self.check_404_error(get_mock, lambda: self.call_api())
 
-    @patch("gmo_fx.symbols.get")
+    @patch("gmo_fx.api.api_base.get")
     def test_should_get_symbols_from_symbols(self, get_mock: MagicMock):
         get_mock.return_value = self.create_response(data=self.create_symbols_data())
-        symbols_response = get_symbols()
+        symbols_response = self.call_api()
         symbols = [rule.symbol for rule in symbols_response.rules]
         for symbol in Symbol:
             assert symbol in symbols
@@ -80,7 +85,7 @@ class TestSymbolsApi(ApiTestBase):
         else:
             assert len(symbols) == 0
 
-    @patch("gmo_fx.symbols.get")
+    @patch("gmo_fx.api.api_base.get")
     def test_should_get_min_open_order_size_from_symbols(self, get_mock: MagicMock):
         def fixture_min_open_order_size(symbol: str):
             return self.SYMBOLS.index(symbol) * 100
@@ -92,13 +97,13 @@ class TestSymbolsApi(ApiTestBase):
         get_mock.return_value = self.create_response(
             data=self.create_symbols_data(symbols_data_builder=fixture_symbols_data)
         )
-        rules = get_symbols().rules
+        rules = self.call_api().rules
         for rule in rules:
             assert rule.min_open_order_size == fixture_min_open_order_size(
                 self.SYMBOLS_TABLE[rule.symbol]
             )
 
-    @patch("gmo_fx.symbols.get")
+    @patch("gmo_fx.api.api_base.get")
     def test_should_get_max_order_size_from_symbols(self, get_mock: MagicMock):
         def fixture_max_order_size(symbol: str):
             return self.SYMBOLS.index(symbol) * 100
@@ -110,13 +115,13 @@ class TestSymbolsApi(ApiTestBase):
         get_mock.return_value = self.create_response(
             data=self.create_symbols_data(symbols_data_builder=fixture_symbols_data)
         )
-        rules = get_symbols().rules
+        rules = self.call_api().rules
         for rule in rules:
             assert rule.max_order_size == fixture_max_order_size(
                 self.SYMBOLS_TABLE[rule.symbol]
             )
 
-    @patch("gmo_fx.symbols.get")
+    @patch("gmo_fx.api.api_base.get")
     def test_should_get_size_step_from_symbols(self, get_mock: MagicMock):
         def fixture_size_step(symbol: str):
             return self.SYMBOLS.index(symbol) * 100
@@ -128,11 +133,11 @@ class TestSymbolsApi(ApiTestBase):
         get_mock.return_value = self.create_response(
             data=self.create_symbols_data(symbols_data_builder=fixture_symbols_data)
         )
-        rules = get_symbols().rules
+        rules = self.call_api().rules
         for rule in rules:
             assert rule.size_step == fixture_size_step(self.SYMBOLS_TABLE[rule.symbol])
 
-    @patch("gmo_fx.symbols.get")
+    @patch("gmo_fx.api.api_base.get")
     def test_should_get_tick_size_from_symbols(self, get_mock: MagicMock):
         def fixture_tick_size(symbol: str):
             return (self.SYMBOLS.index(symbol) / 3) * 100
@@ -144,6 +149,6 @@ class TestSymbolsApi(ApiTestBase):
         get_mock.return_value = self.create_response(
             data=self.create_symbols_data(symbols_data_builder=fixture_symbols_data)
         )
-        rules = get_symbols().rules
+        rules = self.call_api().rules
         for rule in rules:
             assert rule.tick_size == fixture_tick_size(self.SYMBOLS_TABLE[rule.symbol])

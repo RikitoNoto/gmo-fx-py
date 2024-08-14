@@ -1,7 +1,7 @@
 from typing import Callable, Optional
 from unittest.mock import MagicMock, patch
-from gmo_fx.symbols import Symbol
-from gmo_fx.ticker import get_ticker
+from gmo_fx.common import Symbol
+from gmo_fx.api.ticker import TickerApi, TickerResponse
 from datetime import datetime
 
 from tests.api_test_base import ApiTestBase
@@ -66,14 +66,19 @@ class TestTickerApi(ApiTestBase):
         exchange_data_builder = exchange_data_builder or self.create_ticker_data
         return [exchange_data_builder(symbol) for symbol in self.SYMBOLS]
 
-    @patch("gmo_fx.ticker.get")
-    def test_ticker_error(self, get_mock: MagicMock):
-        self.check_404_error(get_mock, lambda: get_ticker())
+    def call_api(
+        self,
+    ) -> TickerResponse:
+        return TickerApi()()
 
-    @patch("gmo_fx.ticker.get")
+    @patch("gmo_fx.api.api_base.get")
+    def test_ticker_error(self, get_mock: MagicMock):
+        self.check_404_error(get_mock, lambda: self.call_api())
+
+    @patch("gmo_fx.api.api_base.get")
     def test_should_get_symbols_from_ticker(self, get_mock: MagicMock):
         get_mock.return_value = self.create_response(data=self.create_tickers_data())
-        ticker_response = get_ticker()
+        ticker_response = self.call_api()
         symbols = [ticker.symbol for ticker in ticker_response.tickers]
         for symbol in Symbol:
             assert symbol in symbols
@@ -81,7 +86,7 @@ class TestTickerApi(ApiTestBase):
         else:
             assert len(symbols) == 0
 
-    @patch("gmo_fx.ticker.get")
+    @patch("gmo_fx.api.api_base.get")
     def test_should_get_bid_ask_from_ticker(self, get_mock: MagicMock):
         def fixture_ask_bid(symbol: str):
             return self.SYMBOLS.index(symbol), self.SYMBOLS.index(symbol) * 100
@@ -93,12 +98,12 @@ class TestTickerApi(ApiTestBase):
         get_mock.return_value = self.create_response(
             data=self.create_tickers_data(exchange_data_builder=fixture_ticker_data)
         )
-        rates = get_ticker().tickers
+        rates = self.call_api().tickers
         for rate in rates:
             assert rate.ask == fixture_ask_bid(self.SYMBOLS_TABLE[rate.symbol])[0]
             assert rate.bid == fixture_ask_bid(self.SYMBOLS_TABLE[rate.symbol])[1]
 
-    @patch("gmo_fx.ticker.get")
+    @patch("gmo_fx.api.api_base.get")
     def test_should_get_timestamp_from_ticker(self, get_mock: MagicMock):
         def fixture_timestamp(symbol: str):
             return datetime(2000, 12, self.SYMBOLS.index(symbol) + 1)  # 0日はないので
@@ -110,11 +115,11 @@ class TestTickerApi(ApiTestBase):
         get_mock.return_value = self.create_response(
             data=self.create_tickers_data(exchange_data_builder=fixture_ticker_data)
         )
-        rates = get_ticker().tickers
+        rates = self.call_api().tickers
         for rate in rates:
             assert rate.timestamp == fixture_timestamp(self.SYMBOLS_TABLE[rate.symbol])
 
-    @patch("gmo_fx.ticker.get")
+    @patch("gmo_fx.api.api_base.get")
     def test_should_get_status_from_ticker(self, get_mock: MagicMock):
         def fixture_status(symbol: str):
             statuses = ["OPEN", "CLOSE"]
@@ -127,7 +132,7 @@ class TestTickerApi(ApiTestBase):
         get_mock.return_value = self.create_response(
             data=self.create_tickers_data(exchange_data_builder=fixture_ticker_data)
         )
-        rates = get_ticker().tickers
+        rates = self.call_api().tickers
         for rate in rates:
             status_str = fixture_status(self.SYMBOLS_TABLE[rate.symbol])
             for status in ["OPEN", "CLOSE"]:

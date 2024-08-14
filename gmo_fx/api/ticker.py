@@ -1,8 +1,9 @@
 from dataclasses import dataclass
 from datetime import datetime
 from requests import get, Response
-from gmo_fx.response import Response as ResponseBase
-from gmo_fx.symbols import Symbol
+from gmo_fx.api.api_base import PublicApiBase
+from gmo_fx.api.response import Response as ResponseBase
+from gmo_fx.common import Symbol
 from gmo_fx.urls import BASE_URL_PUBLIC
 
 
@@ -35,14 +36,23 @@ class TickerResponse(ResponseBase):
         ]
 
 
-def get_ticker() -> TickerResponse:
-    response: Response = get(f"{BASE_URL_PUBLIC}/ticker")
-    if response.status_code == 200:
-        response_json = response.json()
-        return TickerResponse(response_json)
+class TickerApi(PublicApiBase):
 
-    raise RuntimeError(
-        "最新レートが取得できませんでした。\n"
-        f"status code: {response.status_code}\n"
-        f"response: {response.text}"
-    )
+    @property
+    def _path(self) -> str:
+        return f"/{self.VERSION}/ticker"
+
+    @property
+    def _method(self) -> PublicApiBase._HttpMethod:
+        return self._HttpMethod.GET
+
+    @property
+    def _response_parser(self):
+        return TickerResponse
+
+    def _api_error_message(self, response: Response):
+        return (
+            "最新レートが取得できませんでした。\n"
+            f"status code: {response.status_code}\n"
+            f"response: {response.text}"
+        )

@@ -1,25 +1,10 @@
 from dataclasses import dataclass
 from enum import Enum
-from gmo_fx.response import Response as ResponseBase
+from gmo_fx.api.api_base import PublicApiBase
+from gmo_fx.api.response import Response as ResponseBase
+from gmo_fx.common import Symbol
 from requests import get, Response
 from gmo_fx.urls import BASE_URL_PUBLIC
-
-
-class Symbol(Enum):
-    USD_JPY = "USD_JPY"
-    EUR_JPY = "EUR_JPY"
-    GBP_JPY = "GBP_JPY"
-    AUD_JPY = "AUD_JPY"
-    NZD_JPY = "NZD_JPY"
-    CAD_JPY = "CAD_JPY"
-    CHF_JPY = "CHF_JPY"
-    TRY_JPY = "TRY_JPY"
-    ZAR_JPY = "ZAR_JPY"
-    MXN_JPY = "MXN_JPY"
-    EUR_USD = "EUR_USD"
-    GBP_USD = "GBP_USD"
-    AUD_USD = "AUD_USD"
-    NZD_USD = "NZD_USD"
 
 
 @dataclass
@@ -51,14 +36,23 @@ class SymbolsResponse(ResponseBase):
         ]
 
 
-def get_symbols() -> SymbolsResponse:
-    response: Response = get(f"{BASE_URL_PUBLIC}/symbols")
-    if response.status_code == 200:
-        response_json = response.json()
-        return SymbolsResponse(response_json)
+class SymbolsApi(PublicApiBase):
 
-    raise RuntimeError(
-        "取引ルールが取得できませんでした。\n"
-        f"status code: {response.status_code}\n"
-        f"response: {response.text}"
-    )
+    @property
+    def _path(self) -> str:
+        return f"/{self.VERSION}/symbols"
+
+    @property
+    def _method(self) -> PublicApiBase._HttpMethod:
+        return self._HttpMethod.GET
+
+    @property
+    def _response_parser(self):
+        return SymbolsResponse
+
+    def _api_error_message(self, response: Response):
+        return (
+            "取引ルールが取得できませんでした。\n"
+            f"status code: {response.status_code}\n"
+            f"response: {response.text}"
+        )
