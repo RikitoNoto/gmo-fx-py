@@ -11,9 +11,6 @@ VERSION = "0.2.0"
 INSTALL_REQUIRES = [
     "requests>=2.31.0",
 ]
-PACKAGES = [
-    "gmo_fx",
-]
 
 with open("README.md", "r") as fp:
     readme = fp.read()
@@ -30,5 +27,5 @@ setup(
     download_url=DOWNLOAD_URL,
     version=VERSION,
     install_requires=INSTALL_REQUIRES,
-    packages=PACKAGES,
+    packages=find_packages(),
 )
