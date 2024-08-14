@@ -7,12 +7,9 @@ AUTHOR_EMAIL = "rikitonoto@gmail.com"
 URL = "https://github.com/RikitoNoto/gmo-fx-py"
 LICENSE = "MIT"
 DOWNLOAD_URL = "https://github.com/RikitoNoto/gmo-fx-py"
-VERSION = "0.2.0"
+VERSION = "0.2.1"
 INSTALL_REQUIRES = [
     "requests>=2.31.0",
-]
-PACKAGES = [
-    "gmo_fx",
 ]
 
 with open("README.md", "r") as fp:
@@ -30,5 +27,5 @@ setup(
     download_url=DOWNLOAD_URL,
     version=VERSION,
     install_requires=INSTALL_REQUIRES,
-    packages=PACKAGES,
+    packages=find_packages(),
 )
