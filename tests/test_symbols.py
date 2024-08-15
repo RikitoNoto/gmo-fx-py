@@ -152,3 +152,13 @@ class TestSymbolsApi(ApiTestBase):
         rules = self.call_api().rules
         for rule in rules:
             assert rule.tick_size == fixture_tick_size(self.SYMBOLS_TABLE[rule.symbol])
+
+    @patch("gmo_fx.api.api_base.get")
+    def test_check_url(
+        self,
+        get_mock: MagicMock,
+    ) -> None:
+        get_mock.return_value = self.create_response(data=self.create_symbols_data())
+        self.call_api()
+        url = get_mock.mock_calls[0].args[0]
+        assert url == "https://forex-api.coin.z.com/public/v1/symbols"
