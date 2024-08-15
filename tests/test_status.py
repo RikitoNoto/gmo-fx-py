@@ -32,3 +32,13 @@ class TestStatusApi(ApiTestBase):
         get_mock.return_value = self.create_response(data={"status": "MAINTENANCE"})
         actual = self.call_api()
         assert actual.status == Status.MAINTENANCE
+
+    @patch("gmo_fx.api.api_base.get")
+    def test_check_url(
+        self,
+        get_mock: MagicMock,
+    ) -> None:
+        get_mock.return_value = self.create_response(data={"status": "OPEN"})
+        self.call_api()
+        url = get_mock.mock_calls[0].args[0]
+        assert url == "https://forex-api.coin.z.com/public/v1/status"

@@ -40,7 +40,7 @@ class SymbolsApi(PublicApiBase):
 
     @property
     def _path(self) -> str:
-        return f"/{self.VERSION}/symbols"
+        return f"symbols"
 
     @property
     def _method(self) -> PublicApiBase._HttpMethod:

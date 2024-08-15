@@ -39,7 +39,7 @@ class StatusApi(PublicApiBase):
 
     @property
     def _path(self) -> str:
-        return f"/{self.VERSION}/status"
+        return f"status"
 
     @property
     def _method(self) -> PublicApiBase._HttpMethod:

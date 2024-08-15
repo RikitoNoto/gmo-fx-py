@@ -40,7 +40,7 @@ class TickerApi(PublicApiBase):
 
     @property
     def _path(self) -> str:
-        return f"/{self.VERSION}/ticker"
+        return f"ticker"
 
     @property
     def _method(self) -> PublicApiBase._HttpMethod:
