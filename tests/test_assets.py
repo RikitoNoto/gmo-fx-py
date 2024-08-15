@@ -1,3 +1,5 @@
+import re
+
 from typing import Callable, Optional
 from unittest.mock import MagicMock, patch
 from gmo_fx.common import Symbol
@@ -126,3 +128,15 @@ class TestAssetsApi(ApiTestBase):
         response = self.call_api()
         transferable_amounts = [asset.transferable_amount for asset in response.assets]
         assert transferable_amounts[0] == 1
+
+    @patch("gmo_fx.api.api_base.get")
+    def test_check_url(
+        self,
+        get_mock: MagicMock,
+    ) -> None:
+        get_mock.return_value = self.create_response(
+            data=self.create_assets_data(equity=1)
+        )
+        self.call_api()
+        url = get_mock.mock_calls[0].args[0]
+        assert url == "https://forex-api.coin.z.com/private/v1/account/assets"

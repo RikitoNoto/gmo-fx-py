@@ -57,7 +57,7 @@ class KlinesApi(PublicApiBase):
 
     @property
     def _path(self) -> str:
-        return f"/{self.VERSION}/klines"
+        return f"klines"
 
     @property
     def _method(self) -> PublicApiBase._HttpMethod:

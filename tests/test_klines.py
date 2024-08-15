@@ -214,3 +214,14 @@ class TestKlinesApi(ApiTestBase):
             date=date,
             date_str=string,
         )
+
+    @patch("gmo_fx.api.api_base.get")
+    def test_check_url(
+        self,
+        get_mock: MagicMock,
+    ) -> None:
+        get_mock.return_value = self.create_response(data=self.create_klines(1))
+        self.call_api(Symbol.USD_JPY, "BID", KlineInterval.D1, datetime.now())
+        url_match = re.search("(.*)\?.*", get_mock.mock_calls[0].args[0])
+        url = url_match.group(1)
+        assert url == "https://forex-api.coin.z.com/public/v1/klines"

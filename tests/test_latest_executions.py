@@ -238,3 +238,14 @@ class TestLatestExecutionsApi(ApiTestBase):
         param_match = re.search("\?(.*)", get_mock.mock_calls[0].args[0])
         param = param_match.group(1)
         assert f"count=20" in param
+
+    @patch("gmo_fx.api.api_base.get")
+    def test_check_url(
+        self,
+        get_mock: MagicMock,
+    ) -> None:
+        get_mock.return_value = self.create_response(data=[])
+        self.call_api()
+        url_match = re.search("(.*)\?.*", get_mock.mock_calls[0].args[0])
+        url = url_match.group(1)
+        assert url == "https://forex-api.coin.z.com/private/v1/latestExecutions"

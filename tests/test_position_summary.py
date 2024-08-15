@@ -1,3 +1,4 @@
+import re
 from typing import Callable, Optional
 from unittest.mock import MagicMock, patch
 from gmo_fx.common import Symbol
@@ -145,3 +146,15 @@ class TestPositionSummaryApi(ApiTestBase):
         symbols = [position.symbol for position in response.positions]
         assert symbols[0] == Symbol.USD_JPY
         assert symbols[1] == Symbol.GBP_USD
+
+    @patch("gmo_fx.api.api_base.get")
+    def test_check_url(
+        self,
+        get_mock: MagicMock,
+    ) -> None:
+        get_mock.return_value = self.create_response(data=[])
+        self.call_api()
+        # url_match = re.search("(.*)\?.*", get_mock.mock_calls[0].args[0])
+        # url = url_match.group(1)
+        url = get_mock.mock_calls[0].args[0]
+        assert url == "https://forex-api.coin.z.com/private/v1/positionSummary"
