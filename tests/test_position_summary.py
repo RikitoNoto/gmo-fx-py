@@ -15,11 +15,12 @@ class TestPositionSummaryApi(ApiTestBase):
 
     def call_api(
         self,
+        symbol: Symbol = Symbol.USD_JPY,
     ) -> PositionSummaryResponse:
         return PositionSummaryApi(
             api_key="",
             secret_key="",
-        )()
+        )(symbol=symbol)
 
     def create_position_summary_data(
         self,
@@ -154,7 +155,18 @@ class TestPositionSummaryApi(ApiTestBase):
     ) -> None:
         get_mock.return_value = self.create_response(data=[])
         self.call_api()
-        # url_match = re.search("(.*)\?.*", get_mock.mock_calls[0].args[0])
-        # url = url_match.group(1)
         url = get_mock.mock_calls[0].args[0]
-        assert url == "https://forex-api.coin.z.com/private/v1/positionSummary"
+        assert (
+            url
+            == "https://forex-api.coin.z.com/private/v1/positionSummary?symbol=USD_JPY"
+        )
+
+    @patch("gmo_fx.api.api_base.get")
+    def test_should_call_api_with_symbol(
+        self,
+        get_mock: MagicMock,
+    ) -> None:
+        get_mock.return_value = self.create_response(data=[])
+        self.call_api(symbol=Symbol.AUD_JPY)
+        url = get_mock.mock_calls[0].args[0]
+        assert "symbol=AUD_JPY" in url

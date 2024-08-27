@@ -63,3 +63,9 @@ class PositionSummaryApi(PrivateApiBase):
             f"status code: {response.status_code}\n"
             f"response: {response.text}"
         )
+
+    def __call__(
+        self,
+        symbol: Symbol,
+    ) -> PositionSummaryResponse:
+        return super().__call__(path_query=f"symbol={symbol.value}")
