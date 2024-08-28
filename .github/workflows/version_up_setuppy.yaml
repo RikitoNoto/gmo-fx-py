@@ -72,7 +72,7 @@ jobs:
             echo "Version is already up-to-date in setup.py. Skipping commit."
             echo "skip_commit=true" >> $GITHUB_OUTPUT
           else
-            sed -i "s/VERSION='$current_version'/VERSION='${{ steps.new_version.outputs.new_version }}'/" setup.py
+            sed -i "s/$version_str\"$current_version\"/$version_str\"${{ steps.new_version.outputs.new_version }}\"/" setup.py
             echo "skip_commit=false" >> $GITHUB_OUTPUT
           fi
 
