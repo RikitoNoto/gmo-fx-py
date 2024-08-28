@@ -35,14 +35,14 @@ jobs:
           IFS='.' read -r major minor patch <<< "${pre_version#v}"
 
           # プルリクエストに付与されたラベルに応じてバージョンをインクリメント
-          if [[ ${{ github.event.pull_request.labels[*] }} == *"release_major"* ]]; then
+          if [[ ${{ github.event.pull_request.labels[*] }} == "release_major" ]]; then
             major=$((major + 1))
             minor=0
             patch=0
-          elif [[ ${{ github.event.pull_request.labels[*] }} == *"release_minor"* ]]; then
+          elif [[ ${{ github.event.pull_request.labels[*] }} == "release_minor" ]]; then
             minor=$((minor + 1))
             patch=0
-          elif [[ ${{ github.event.pull_request.labels[*] }} == *"release_patch"* ]]; then
+          elif [[ ${{ github.event.pull_request.labels[*] }} == "release_patch" ]]; then
             patch=$((patch + 1))
           fi
 
@@ -55,7 +55,8 @@ jobs:
       - name: Update setup.py with new version
         id: update_setuppy
         run: |
-          current_version=$(grep -Po '(?<=VERSION=\")[0-9]+\.[0-9]+\.[0-9]+' setup.py)
+          version_str=$(grep -Po 'VERSION\s*=\s*' setup.py)
+          current_version=$(grep -Po "(?<=$version_str\")[0-9]+\.[0-9]+\.[0-9]+" setup.py)
           if [ "$current_version" == "${{ steps.inc_ver.outputs.new_version }}" ]; then
             echo "Version is already up-to-date in setup.py. Skipping commit."
             echo "skip_commit=true" >> $GITHUB_OUTPUT
