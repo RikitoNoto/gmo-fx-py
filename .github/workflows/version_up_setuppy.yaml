@@ -18,6 +18,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}  # コミット時にブランチ名が必要なため、ブランチ名指定でチェックアウト
 
       # 前回のリリースタグ取得
       - name: Get previous tag
