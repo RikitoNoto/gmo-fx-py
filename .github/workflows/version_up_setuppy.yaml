@@ -6,6 +6,7 @@ on:
       - main
       - develop
     types:
+      - synchronize
       - labeled
       - unlabeled
 
@@ -20,34 +21,41 @@ jobs:
 
       # 前回のリリースタグ取得
       - name: Get previous tag
-        id: pre_tag
+        id: latest_version
         run: |
-          echo "pre_tag=$(curl -H 'Accept: application/vnd.github.v3+json' -H 'Authorization: token ${{ secrets.GITHUB_TOKEN }}' https://api.github.com/repos/${{ github.repository }}/releases/latest | jq -r .tag_name)" >> $GITHUB_OUTPUT
+          latest_version=$(curl -H 'Accept: application/vnd.github.v3+json' -H 'Authorization: token ${{ secrets.GITHUB_TOKEN }}' https://api.github.com/repos/${{ github.repository }}/releases/latest | jq -r .tag_name)
+          echo "latest_version=$latest_version" >> $GITHUB_OUTPUT
+          IFS='.' read -r major minor patch <<< "${latest_version#v}"
+          echo "MAJOR=$major" >> $GITHUB_ENV
+          echo "MINOR=$minor" >> $GITHUB_ENV
+          echo "PATCH=$patch" >> $GITHUB_ENV
 
-      # バージョン番号のインクリメント
-      - name: Increment version
-        id: inc_ver
-        # 設定されているタグをもとにバージョンを上げる
+      - name: Patch version up
+        if: contains(github.event.pull_request.labels.*.name, 'release_patch')
         run: |
-          pre_version=${{ steps.pre_tag.outputs.pre_tag }}
+          patch_version=$PATCH
+          patch_version=$((patch_version + 1))
+          echo "PATCH=$patch_version" >> $GITHUB_ENV
 
-          # 現在のバージョン番号を分割して各部分を取得
-          IFS='.' read -r major minor patch <<< "${pre_version#v}"
+      - name: Minor version up
+        if: contains(github.event.pull_request.labels.*.name, 'release_minor')
+        run: |
+          minor_version=$MINOR
+          minor_version=$((minor_version + 1))
+          echo "MINOR=$minor_version" >> $GITHUB_ENV
 
-          # プルリクエストに付与されたラベルに応じてバージョンをインクリメント
-          if [[ ${{ github.event.pull_request.labels[*] }} == "release_major" ]]; then
-            major=$((major + 1))
-            minor=0
-            patch=0
-          elif [[ ${{ github.event.pull_request.labels[*] }} == "release_minor" ]]; then
-            minor=$((minor + 1))
-            patch=0
-          elif [[ ${{ github.event.pull_request.labels[*] }} == "release_patch" ]]; then
-            patch=$((patch + 1))
-          fi
+      - name: Major version up
+        if: contains(github.event.pull_request.labels.*.name, 'release_major')
+        run: |
+          major_version=$MAJOR
+          major_version=$((major_version + 1))
+          echo "MAJOR=$major_version" >> $GITHUB_ENV
 
+      - name: New Version
+        id: new_version
+        run: |
           # 新しいバージョン番号の作成
-          new_version="v$major.$minor.$patch"
+          new_version="v$MAJOR.$MINOR.$PATCH"
           echo "New version: $new_version"
           echo "new_version=$new_version" >> $$GITHUB_OUTPUT
 
@@ -57,11 +65,11 @@ jobs:
         run: |
           version_str=$(grep -Po 'VERSION\s*=\s*' setup.py)
           current_version=$(grep -Po "(?<=$version_str\")[0-9]+\.[0-9]+\.[0-9]+" setup.py)
-          if [ "$current_version" == "${{ steps.inc_ver.outputs.new_version }}" ]; then
+          if [ "$current_version" == "${{ steps.new_version.outputs.new_version }}" ]; then
             echo "Version is already up-to-date in setup.py. Skipping commit."
             echo "skip_commit=true" >> $GITHUB_OUTPUT
           else
-            sed -i "s/VERSION='$current_version'/VERSION='${{ steps.inc_ver.outputs.new_version }}'/" setup.py
+            sed -i "s/VERSION='$current_version'/VERSION='${{ steps.new_version.outputs.new_version }}'/" setup.py
             echo "skip_commit=false" >> $GITHUB_OUTPUT
           fi
 
