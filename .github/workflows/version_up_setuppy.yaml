@@ -60,7 +60,7 @@ jobs:
         id: new_version
         run: |
           # 新しいバージョン番号の作成
-          new_version="v$MAJOR.$MINOR.$PATCH"
+          new_version="$MAJOR.$MINOR.$PATCH"
           echo "New version: $new_version"
           echo "version=$new_version" >> $GITHUB_OUTPUT
 
