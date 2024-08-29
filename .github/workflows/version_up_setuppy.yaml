@@ -1,0 +1,88 @@
+name: setup.pyのバージョンアップ
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - synchronize
+      - labeled
+      - unlabeled
+
+
+jobs:
+  version_up:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}  # コミット時にブランチ名が必要なため、ブランチ名指定でチェックアウト
+
+      # 前回のリリースタグ取得
+      - name: Get previous tag
+        id: latest_version
+        run: |
+          latest_version=$(curl -H 'Accept: application/vnd.github.v3+json' -H 'Authorization: token ${{ secrets.GITHUB_TOKEN }}' https://api.github.com/repos/${{ github.repository }}/releases/latest | jq -r .tag_name)
+          echo "latest_version=$latest_version" >> $GITHUB_OUTPUT
+          IFS='.' read -r major minor patch <<< "${latest_version#v}"
+          echo "MAJOR=$major" >> $GITHUB_ENV
+          echo "MINOR=$minor" >> $GITHUB_ENV
+          echo "PATCH=$patch" >> $GITHUB_ENV
+
+      - name: Patch version up
+        if: contains(github.event.pull_request.labels.*.name, 'release_patch')
+        run: |
+          patch_version=$PATCH
+          patch_version=$((patch_version + 1))
+          echo "PATCH=$patch_version" >> $GITHUB_ENV
+
+      - name: Minor version up
+        if: contains(github.event.pull_request.labels.*.name, 'release_minor')
+        run: |
+          minor_version=$MINOR
+          minor_version=$((minor_version + 1))
+          echo "MINOR=$minor_version" >> $GITHUB_ENV
+          echo "PATCH=0" >> $GITHUB_ENV
+
+      - name: Major version up
+        if: contains(github.event.pull_request.labels.*.name, 'release_major')
+        run: |
+          major_version=$MAJOR
+          major_version=$((major_version + 1))
+          echo "MAJOR=$major_version" >> $GITHUB_ENV
+          echo "MINOR=0" >> $GITHUB_ENV
+          echo "PATCH=0" >> $GITHUB_ENV
+
+      - name: New Version
+        id: new_version
+        run: |
+          # 新しいバージョン番号の作成
+          new_version="$MAJOR.$MINOR.$PATCH"
+          echo "New version: $new_version"
+          echo "version=$new_version" >> $GITHUB_OUTPUT
+
+      # version更新が必要か判定
+      - name: Update setup.py with new version
+        id: update_setuppy
+        run: |
+          version_str=$(grep -Po 'VERSION\s*=\s*' setup.py)
+          current_version=$(grep -Po "(?<=$version_str\")[0-9]+\.[0-9]+\.[0-9]+" setup.py)
+          if [ "$current_version" == "${{ steps.new_version.outputs.version }}" ]; then
+            echo "Version is already up-to-date in setup.py. Skipping commit."
+            echo "skip_commit=true" >> $GITHUB_OUTPUT
+          else
+            sed -i "s/$version_str\"$current_version\"/$version_str\"${{ steps.new_version.outputs.version }}\"/" setup.py
+            echo "skip_commit=false" >> $GITHUB_OUTPUT
+          fi
+
+      # 変更をコミットしてプッシュ
+      - name: Commit and push changes
+        if: steps.update_setuppy.outputs.skip_commit == 'false'
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add setup.py
+          git commit -m "Version up to ${{ steps.new_version.outputs.version }}"
+          git push origin ${{ github.head_ref }}
