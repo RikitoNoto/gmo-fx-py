@@ -1,6 +1,9 @@
 name: Publish Python 🐍 distribution 📦 to PyPI and TestPyPI
 
 on:
+  push:
+    branches:
+      - feature/59_auto_deploy_pypi
   workflow_dispatch:
     inputs:
       environment_name:
@@ -35,7 +38,7 @@ jobs:
       - build
     runs-on: ubuntu-latest
     environment:
-      name: ${{ inputs.environment_name }}
+      name: ${{ inputs.environment_name || 'Test' }}
     permissions:
       id-token: write
 
