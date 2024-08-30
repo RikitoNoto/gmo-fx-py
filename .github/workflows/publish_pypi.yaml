@@ -75,10 +75,12 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
           version_str=$(grep -Po 'VERSION\s*=\s*' setup.py)
-          git tag "v$version_str"
+          version=$(grep -Po "(?<=$version_str\")[0-9]+\.[0-9]+\.[0-9]+" setup.py)
+          git tag "v$version"
           git push --tags
-          echo "version=$version_str" >> $GITHUB_OUTPUT
+          echo "version=$version" >> $GITHUB_OUTPUT
 
       - name: Generate Release Note
         run: |
