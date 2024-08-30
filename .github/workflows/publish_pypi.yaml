@@ -54,3 +54,32 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
             repository-url: ${{ vars.REPOSITORY_URL }}
+
+  generate-release-note:
+    # Productionリリース時のみリリースノート作成
+    if: inputs.environment_name == 'Production'
+    runs-on: ubuntu-latest
+    needs:
+      - build
+      - publish-to-pypi
+    environment:
+      name: ${{ inputs.environment_name }}
+    permissions:
+      contents: write
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create Tag
+        id: tag
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          version_str=$(grep -Po 'VERSION\s*=\s*' setup.py)
+          git tag "v$version_str"
+          git push --tags
+          echo "version=$version_str" >> $GITHUB_OUTPUT
+
+      - name: Generate Release Note
+        run: |
+          gh release create ${{ steps.tag.outputs.version }} --title ${{ steps.tag.outputs.version }} --generate-notes
