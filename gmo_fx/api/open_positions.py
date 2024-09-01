@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Optional
 from requests import Response
@@ -17,7 +17,8 @@ class OpenPosition:
     position_id: int
     symbol: Symbol
     side: Side
-    orderd_size: int
+    size: int
+    ordered_size: int
     price: float
     loss_gain: float
     total_swap: float
@@ -31,19 +32,23 @@ class OpenPositionsResponse(ResponseBase):
         super().__init__(response)
         self.open_positions = []
 
-        # data = response["data"]
-        # self.positions = [
-        #     Position(
-        #         average_position_rate=d["averagePositionRate"],
-        #         position_loss_gain=d["positionLossGain"],
-        #         side=Position.Side(d["side"]),
-        #         sum_ordered_size=d["sumOrderedSize"],
-        #         sum_position_size=d["sumPositionSize"],
-        #         sum_total_swap=d["sumTotalSwap"],
-        #         symbol=Symbol(d["symbol"]),
-        #     )
-        #     for d in data
-        # ]
+        data = response["data"]["list"]
+        self.open_positions = [
+            OpenPosition(
+                position_id=d["positionId"],
+                symbol=Symbol(d["symbol"]),
+                side=OpenPosition.Side(d["side"]),
+                size=int(d["size"]),
+                ordered_size=int(d["orderedSize"]),
+                price=float(d["price"]),
+                loss_gain=float(d["lossGain"]),
+                total_swap=float(d["totalSwap"]),
+                timestamp=datetime.strptime(
+                    d["timestamp"], "%Y-%m-%dT%H:%M:%S.%fZ"
+                ).replace(tzinfo=timezone.utc),
+            )
+            for d in data
+        ]
 
 
 class OpenPositionsApi(PrivateApiBase):
