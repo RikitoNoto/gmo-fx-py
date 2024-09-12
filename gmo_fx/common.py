@@ -35,3 +35,18 @@ class SettleType(Enum):
 
     OPEN = "OPEN"
     CLOSE = "CLOSE"
+
+
+class OrderType(Enum):
+    """取引区分"""
+
+    NORMAL = "NORMAL"
+    OCO = "OCO"
+
+
+class ExecutionType(Enum):
+    """注文タイプ"""
+
+    MARKET = "MARKET"
+    LIMIT = "LIMIT"
+    STOP = "STOP"
