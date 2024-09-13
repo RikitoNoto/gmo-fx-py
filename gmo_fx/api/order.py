@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from enum import Enum
 from typing import Optional
 from requests import Response
@@ -38,7 +38,7 @@ class Order:
     price: Optional[float]
     status: Status
     cancel_type: Optional[CancelType]
-    expiry: datetime
+    expiry: date
     timestamp: datetime
 
 
@@ -49,23 +49,29 @@ class OrderResponse(ResponseBase):
         super().__init__(response)
         self.orders = []
 
-        data = response["data"]
+        data: list[dict] = response["data"]
         self.orders = [
             Order(
-                root_order_id=0,
-                client_order_id="",
-                order_id=0,
+                root_order_id=d["rootOrderId"],
+                client_order_id=d.get("clientOrderId"),
+                order_id=d["orderId"],
                 symbol=Order.Symbol(d["symbol"]),
-                side=Order.Side.BUY,
-                order_type=Order.OrderType.NORMAL,
-                execution_type=Order.ExecutionType.MARKET,
-                settle_type=Order.SettleType.OPEN,
-                size=0,
-                price=None,
-                status=Order.Status.WAITING,
-                cancel_type=None,
-                expiry=datetime.now(),
-                timestamp=datetime.now(),
+                side=Order.Side(d["side"]),
+                order_type=Order.OrderType(d["orderType"]),
+                execution_type=Order.ExecutionType(d["executionType"]),
+                settle_type=Order.SettleType(d["settleType"]),
+                size=int(d["size"]),
+                price=float(d.get("price")) if d.get("price") else None,
+                status=Order.Status(d["status"]),
+                cancel_type=(
+                    Order.CancelType(d.get("cancelType"))
+                    if d.get("cancelType")
+                    else None
+                ),
+                expiry=datetime.strptime(d["expiry"], "%Y%m%d").date(),
+                timestamp=datetime.strptime(
+                    d["timestamp"], "%Y-%m-%dT%H:%M:%S.%fZ"
+                ).replace(tzinfo=timezone.utc),
             )
             for d in data
         ]

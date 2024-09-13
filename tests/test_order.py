@@ -42,7 +42,7 @@ class TestOrderApi(ApiTestBase):
     def create_order_data(
         self,
         root_order_id: int = 123456789,
-        client_order_id: str = "abc123",
+        client_order_id: Optional[str] = "abc123",
         order_id: int = 123456789,
         symbol: str = "USD_JPY",
         side: str = "BUY",
@@ -50,14 +50,14 @@ class TestOrderApi(ApiTestBase):
         execution_type: str = "LIMIT",
         settle_type: str = "OPEN",
         size: int = 100,
-        price: float = 130.5,
+        price: Optional[float] = 130.5,
         status: str = "WAITING",
-        expiry: datetime = datetime.now(),
-        timestamp: datetime = datetime.now(),
+        cancel_type: Optional[str] = "PRICE_BOUND",
+        expiry: str = "20220113",
+        timestamp: str = "2019-03-19T02:15:06.059Z",
     ) -> dict:
-        return {
+        data = {
             "rootOrderId": root_order_id,
-            "clientOrderId": client_order_id,
             "orderId": order_id,
             "symbol": symbol,
             "side": side,
@@ -65,11 +65,21 @@ class TestOrderApi(ApiTestBase):
             "executionType": execution_type,
             "settleType": settle_type,
             "size": str(size),
-            "price": str(price),
             "status": status,
-            "expiry": expiry.strftime("%Y%m%d"),
-            "timestamp": timestamp.strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
+            "expiry": expiry,
+            "timestamp": timestamp,
         }
+
+        if client_order_id is not None:
+            data["clientOrderId"] = client_order_id
+
+        if price is not None:
+            data["price"] = str(price)
+
+        if cancel_type is not None:
+            data["cancelType"] = cancel_type
+
+        return data
 
     @patch("gmo_fx.api.api_base.post")
     def test_404_error(self, post_mock: MagicMock):
@@ -94,10 +104,102 @@ class TestOrderApi(ApiTestBase):
         return response
 
     @patch("gmo_fx.api.api_base.post")
+    def test_should_get_root_order_id(self, post_mock: MagicMock):
+        response = self.check_parse_a_data(post_mock, root_order_id=2536464541)
+        assert response.orders[0].root_order_id == 2536464541
+
+    @patch("gmo_fx.api.api_base.post")
+    def test_should_get_client_order_id(self, post_mock: MagicMock):
+        response = self.check_parse_a_data(post_mock, client_order_id="abbb324dff")
+        assert response.orders[0].client_order_id == "abbb324dff"
+
+    @patch("gmo_fx.api.api_base.post")
+    def test_should_get_none_without_client_order_id(self, post_mock: MagicMock):
+        response = self.check_parse_a_data(post_mock, client_order_id=None)
+        assert response.orders[0].client_order_id is None
+
+    @patch("gmo_fx.api.api_base.post")
+    def test_should_get_order_id(self, post_mock: MagicMock):
+        response = self.check_parse_a_data(post_mock, order_id=156789)
+        assert response.orders[0].order_id == 156789
+
+    @patch("gmo_fx.api.api_base.post")
     def test_should_get_symbol(self, post_mock: MagicMock):
         for symbol in Order.Symbol:
             response = self.check_parse_a_data(post_mock, symbol=symbol.value)
             assert response.orders[0].symbol == symbol
+
+    @patch("gmo_fx.api.api_base.post")
+    def test_should_get_side(self, post_mock: MagicMock):
+        for side in Order.Side:
+            response = self.check_parse_a_data(post_mock, side=side.value)
+            assert response.orders[0].side == side
+
+    @patch("gmo_fx.api.api_base.post")
+    def test_should_get_order_type(self, post_mock: MagicMock):
+        for order_type in Order.OrderType:
+            response = self.check_parse_a_data(post_mock, order_type=order_type.value)
+            assert response.orders[0].order_type == order_type
+
+    @patch("gmo_fx.api.api_base.post")
+    def test_should_get_execution_type(self, post_mock: MagicMock):
+        for execution_type in Order.ExecutionType:
+            response = self.check_parse_a_data(
+                post_mock, execution_type=execution_type.value
+            )
+            assert response.orders[0].execution_type == execution_type
+
+    @patch("gmo_fx.api.api_base.post")
+    def test_should_get_settle_type(self, post_mock: MagicMock):
+        for settle_type in Order.SettleType:
+            response = self.check_parse_a_data(post_mock, settle_type=settle_type.value)
+            assert response.orders[0].settle_type == settle_type
+
+    @patch("gmo_fx.api.api_base.post")
+    def test_should_get_size(self, post_mock: MagicMock):
+        response = self.check_parse_a_data(post_mock, size=6100)
+        assert response.orders[0].size == 6100
+
+    @patch("gmo_fx.api.api_base.post")
+    def test_should_get_price(self, post_mock: MagicMock):
+        response = self.check_parse_a_data(post_mock, price=155.44)
+        assert response.orders[0].price == 155.44
+
+    @patch("gmo_fx.api.api_base.post")
+    def test_should_get_none_without_price(self, post_mock: MagicMock):
+        response = self.check_parse_a_data(post_mock, price=None)
+        assert response.orders[0].price is None
+
+    @patch("gmo_fx.api.api_base.post")
+    def test_should_get_status(self, post_mock: MagicMock):
+        for status in Order.Status:
+            response = self.check_parse_a_data(post_mock, status=status.value)
+            assert response.orders[0].status == status
+
+    @patch("gmo_fx.api.api_base.post")
+    def test_should_get_cancel_type(self, post_mock: MagicMock):
+        for cancel_type in Order.CancelType:
+            response = self.check_parse_a_data(post_mock, cancel_type=cancel_type.value)
+            assert response.orders[0].cancel_type == cancel_type
+
+    @patch("gmo_fx.api.api_base.post")
+    def test_should_get_none_without_cancel_type(self, post_mock: MagicMock):
+        response = self.check_parse_a_data(post_mock, cancel_type=None)
+        assert response.orders[0].cancel_type is None
+
+    @patch("gmo_fx.api.api_base.post")
+    def test_should_get_expiry(self, post_mock: MagicMock):
+        response = self.check_parse_a_data(post_mock, expiry="20190418")
+        assert response.orders[0].expiry == datetime(2019, 4, 18).date()
+
+    @patch("gmo_fx.api.api_base.post")
+    def test_should_get_timestamp(self, post_mock: MagicMock):
+        response = self.check_parse_a_data(
+            post_mock, timestamp="2024-09-13T15:21:03.059Z"
+        )
+        assert response.orders[0].timestamp == datetime(
+            2024, 9, 13, 15, 21, 3, 59000, tzinfo=timezone.utc
+        )
 
     # @patch("gmo_fx.api.api_base.get")
     # def test_should_call_api_with_symbol(
