@@ -1,14 +1,11 @@
-import re
-from typing import Callable, Literal, Optional
-from unittest.mock import MagicMock, patch
-
 import pytest
-from gmo_fx.api.klines import KlinesApi, KlinesResponse, KlineInterval
+import re
 
 from datetime import datetime
-
-from gmo_fx.common import Symbol
+from gmo_fx.api.klines import KlinesApi, KlinesResponse
 from tests.api_test_base import ApiTestBase
+from typing import Callable, Literal, Optional
+from unittest.mock import MagicMock, patch
 
 
 class TestKlinesApi(ApiTestBase):
@@ -31,9 +28,9 @@ class TestKlinesApi(ApiTestBase):
 
     def call_api(
         self,
-        symbol: Symbol,
+        symbol: KlinesApi.Symbol,
         price_type: Literal["BID", "ASK"],
-        interval: KlineInterval,
+        interval: KlinesApi.KlineInterval,
         date: datetime,
     ) -> KlinesResponse:
         return KlinesApi()(
@@ -54,17 +51,11 @@ class TestKlinesApi(ApiTestBase):
         self.check_404_error(
             get_mock,
             lambda: self.call_api(
-                Symbol.USD_JPY,
+                KlinesApi.Symbol.USD_JPY,
                 "BID",
-                KlineInterval.Min1,
+                KlinesApi.KlineInterval.Min1,
                 datetime(2024, 1, 1),
             ),
-            #     get_klines(
-            #     Symbol.USD_JPY,
-            #     "BID",
-            #     KlineInterval.Min1,
-            #     datetime(2024, 1, 1),
-            # ),
         )
 
     @patch("gmo_fx.api.api_base.get")
@@ -92,9 +83,9 @@ class TestKlinesApi(ApiTestBase):
             )
         )
         klines_response = self.call_api(
-            Symbol.USD_JPY,
+            KlinesApi.Symbol.USD_JPY,
             "BID",
-            KlineInterval.Min1,
+            KlinesApi.KlineInterval.Min1,
             datetime(2024, 1, 1),
         )
         for i, expect in enumerate(expect_klines):
@@ -107,11 +98,11 @@ class TestKlinesApi(ApiTestBase):
     def check_url_parameter(
         self,
         get_mock: MagicMock,
-        symbol: Symbol = Symbol.USD_JPY,
+        symbol: KlinesApi.Symbol = KlinesApi.Symbol.USD_JPY,
         symbol_str: str = "USD_JPY",
         price_type: str = "ASK",
         price_type_str: str = "ASK",
-        interval=KlineInterval.Min1,
+        interval=KlinesApi.KlineInterval.Min1,
         interval_str="1min",
         date: datetime = datetime(2024, 1, 1),
         date_str: str = "20240101",
@@ -127,26 +118,26 @@ class TestKlinesApi(ApiTestBase):
         assert f"date={date_str}" in param
 
     symbol_strs = [
-        (Symbol.USD_JPY, "USD_JPY"),
-        (Symbol.EUR_JPY, "EUR_JPY"),
-        (Symbol.GBP_JPY, "GBP_JPY"),
-        (Symbol.AUD_JPY, "AUD_JPY"),
-        (Symbol.NZD_JPY, "NZD_JPY"),
-        (Symbol.CAD_JPY, "CAD_JPY"),
-        (Symbol.CHF_JPY, "CHF_JPY"),
-        (Symbol.TRY_JPY, "TRY_JPY"),
-        (Symbol.ZAR_JPY, "ZAR_JPY"),
-        (Symbol.MXN_JPY, "MXN_JPY"),
-        (Symbol.EUR_USD, "EUR_USD"),
-        (Symbol.GBP_USD, "GBP_USD"),
-        (Symbol.AUD_USD, "AUD_USD"),
-        (Symbol.NZD_USD, "NZD_USD"),
+        (KlinesApi.Symbol.USD_JPY, "USD_JPY"),
+        (KlinesApi.Symbol.EUR_JPY, "EUR_JPY"),
+        (KlinesApi.Symbol.GBP_JPY, "GBP_JPY"),
+        (KlinesApi.Symbol.AUD_JPY, "AUD_JPY"),
+        (KlinesApi.Symbol.NZD_JPY, "NZD_JPY"),
+        (KlinesApi.Symbol.CAD_JPY, "CAD_JPY"),
+        (KlinesApi.Symbol.CHF_JPY, "CHF_JPY"),
+        (KlinesApi.Symbol.TRY_JPY, "TRY_JPY"),
+        (KlinesApi.Symbol.ZAR_JPY, "ZAR_JPY"),
+        (KlinesApi.Symbol.MXN_JPY, "MXN_JPY"),
+        (KlinesApi.Symbol.EUR_USD, "EUR_USD"),
+        (KlinesApi.Symbol.GBP_USD, "GBP_USD"),
+        (KlinesApi.Symbol.AUD_USD, "AUD_USD"),
+        (KlinesApi.Symbol.NZD_USD, "NZD_USD"),
     ]
 
     @pytest.mark.parametrize("symbol, symbol_str", symbol_strs)
     @patch("gmo_fx.api.api_base.get")
     def test_should_call_get_with_symbol(
-        self, get_mock: MagicMock, symbol: Symbol, symbol_str: str
+        self, get_mock: MagicMock, symbol: KlinesApi.Symbol, symbol_str: str
     ):
         self.check_url_parameter(
             get_mock,
@@ -171,40 +162,44 @@ class TestKlinesApi(ApiTestBase):
         )
 
     interval_strs = [
-        (KlineInterval.Min1, "1min"),
-        (KlineInterval.Min5, "5min"),
-        (KlineInterval.Min10, "10min"),
-        (KlineInterval.Min15, "15min"),
-        (KlineInterval.Min30, "30min"),
-        (KlineInterval.H1, "1hour"),
-        (KlineInterval.H4, "4hour"),
-        (KlineInterval.H8, "8hour"),
-        (KlineInterval.H12, "12hour"),
-        (KlineInterval.D1, "1day"),
-        (KlineInterval.W1, "1week"),
-        (KlineInterval.M1, "1month"),
+        (KlinesApi.KlineInterval.Min1, "1min"),
+        (KlinesApi.KlineInterval.Min5, "5min"),
+        (KlinesApi.KlineInterval.Min10, "10min"),
+        (KlinesApi.KlineInterval.Min15, "15min"),
+        (KlinesApi.KlineInterval.Min30, "30min"),
+        (KlinesApi.KlineInterval.H1, "1hour"),
+        (KlinesApi.KlineInterval.H4, "4hour"),
+        (KlinesApi.KlineInterval.H8, "8hour"),
+        (KlinesApi.KlineInterval.H12, "12hour"),
+        (KlinesApi.KlineInterval.D1, "1day"),
+        (KlinesApi.KlineInterval.W1, "1week"),
+        (KlinesApi.KlineInterval.M1, "1month"),
     ]
 
     date_strs = [
         # datetime, interval, string
-        (datetime(2024, 1, 1, 10, 23, 12), KlineInterval.Min1, "20240101"),
-        (datetime(2024, 1, 1, 10, 23, 12), KlineInterval.Min5, "20240101"),
-        (datetime(2024, 1, 1, 10, 23, 12), KlineInterval.Min10, "20240101"),
-        (datetime(2024, 1, 1, 10, 23, 12), KlineInterval.Min15, "20240101"),
-        (datetime(2024, 1, 1, 10, 23, 12), KlineInterval.Min30, "20240101"),
-        (datetime(2024, 1, 1, 10, 23, 12), KlineInterval.H1, "20240101"),
-        (datetime(2024, 1, 1, 10, 23, 12), KlineInterval.H4, "2024"),
-        (datetime(2024, 1, 1, 10, 23, 12), KlineInterval.H8, "2024"),
-        (datetime(2024, 1, 1, 10, 23, 12), KlineInterval.H12, "2024"),
-        (datetime(2024, 1, 1, 10, 23, 12), KlineInterval.D1, "2024"),
-        (datetime(2024, 1, 1, 10, 23, 12), KlineInterval.W1, "2024"),
-        (datetime(2024, 1, 1, 10, 23, 12), KlineInterval.M1, "2024"),
+        (datetime(2024, 1, 1, 10, 23, 12), KlinesApi.KlineInterval.Min1, "20240101"),
+        (datetime(2024, 1, 1, 10, 23, 12), KlinesApi.KlineInterval.Min5, "20240101"),
+        (datetime(2024, 1, 1, 10, 23, 12), KlinesApi.KlineInterval.Min10, "20240101"),
+        (datetime(2024, 1, 1, 10, 23, 12), KlinesApi.KlineInterval.Min15, "20240101"),
+        (datetime(2024, 1, 1, 10, 23, 12), KlinesApi.KlineInterval.Min30, "20240101"),
+        (datetime(2024, 1, 1, 10, 23, 12), KlinesApi.KlineInterval.H1, "20240101"),
+        (datetime(2024, 1, 1, 10, 23, 12), KlinesApi.KlineInterval.H4, "2024"),
+        (datetime(2024, 1, 1, 10, 23, 12), KlinesApi.KlineInterval.H8, "2024"),
+        (datetime(2024, 1, 1, 10, 23, 12), KlinesApi.KlineInterval.H12, "2024"),
+        (datetime(2024, 1, 1, 10, 23, 12), KlinesApi.KlineInterval.D1, "2024"),
+        (datetime(2024, 1, 1, 10, 23, 12), KlinesApi.KlineInterval.W1, "2024"),
+        (datetime(2024, 1, 1, 10, 23, 12), KlinesApi.KlineInterval.M1, "2024"),
     ]
 
     @pytest.mark.parametrize("date, interval, string", date_strs)
     @patch("gmo_fx.api.api_base.get")
     def test_should_call_get_with_date(
-        self, get_mock: MagicMock, date: datetime, interval: KlineInterval, string: str
+        self,
+        get_mock: MagicMock,
+        date: datetime,
+        interval: KlinesApi.KlineInterval,
+        string: str,
     ):
         interval_map = dict(self.interval_strs)
         self.check_url_parameter(
@@ -221,7 +216,9 @@ class TestKlinesApi(ApiTestBase):
         get_mock: MagicMock,
     ) -> None:
         get_mock.return_value = self.create_response(data=self.create_klines(1))
-        self.call_api(Symbol.USD_JPY, "BID", KlineInterval.D1, datetime.now())
+        self.call_api(
+            KlinesApi.Symbol.USD_JPY, "BID", KlinesApi.KlineInterval.D1, datetime.now()
+        )
         url_match = re.search("(.*)\?.*", get_mock.mock_calls[0].args[0])
         url = url_match.group(1)
         assert url == "https://forex-api.coin.z.com/public/v1/klines"
