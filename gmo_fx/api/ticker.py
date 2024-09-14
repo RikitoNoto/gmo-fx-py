@@ -9,6 +9,7 @@ from gmo_fx.urls import BASE_URL_PUBLIC
 
 @dataclass
 class Ticker:
+    Symbol = Symbol
     symbol: Symbol
     ask: float
     bid: float
@@ -26,7 +27,7 @@ class TickerResponse(ResponseBase):
         data = response["data"]
         self.tickers = [
             Ticker(
-                symbol=Symbol(d["symbol"]),
+                symbol=Ticker.Symbol(d["symbol"]),
                 ask=d["ask"],
                 bid=d["bid"],
                 status=d["status"],

@@ -1,7 +1,6 @@
 from typing import Callable, Optional
 from unittest.mock import MagicMock, patch
-from gmo_fx.common import Symbol
-from gmo_fx.api.ticker import TickerApi, TickerResponse
+from gmo_fx.api.ticker import Ticker, TickerApi, TickerResponse
 from datetime import datetime
 
 from tests.api_test_base import ApiTestBase
@@ -26,20 +25,20 @@ class TestTickerApi(ApiTestBase):
     ]
 
     SYMBOLS_TABLE = {
-        Symbol.USD_JPY: "USD_JPY",
-        Symbol.EUR_JPY: "EUR_JPY",
-        Symbol.GBP_JPY: "GBP_JPY",
-        Symbol.AUD_JPY: "AUD_JPY",
-        Symbol.NZD_JPY: "NZD_JPY",
-        Symbol.CAD_JPY: "CAD_JPY",
-        Symbol.CHF_JPY: "CHF_JPY",
-        Symbol.TRY_JPY: "TRY_JPY",
-        Symbol.ZAR_JPY: "ZAR_JPY",
-        Symbol.MXN_JPY: "MXN_JPY",
-        Symbol.EUR_USD: "EUR_USD",
-        Symbol.GBP_USD: "GBP_USD",
-        Symbol.AUD_USD: "AUD_USD",
-        Symbol.NZD_USD: "NZD_USD",
+        Ticker.Symbol.USD_JPY: "USD_JPY",
+        Ticker.Symbol.EUR_JPY: "EUR_JPY",
+        Ticker.Symbol.GBP_JPY: "GBP_JPY",
+        Ticker.Symbol.AUD_JPY: "AUD_JPY",
+        Ticker.Symbol.NZD_JPY: "NZD_JPY",
+        Ticker.Symbol.CAD_JPY: "CAD_JPY",
+        Ticker.Symbol.CHF_JPY: "CHF_JPY",
+        Ticker.Symbol.TRY_JPY: "TRY_JPY",
+        Ticker.Symbol.ZAR_JPY: "ZAR_JPY",
+        Ticker.Symbol.MXN_JPY: "MXN_JPY",
+        Ticker.Symbol.EUR_USD: "EUR_USD",
+        Ticker.Symbol.GBP_USD: "GBP_USD",
+        Ticker.Symbol.AUD_USD: "AUD_USD",
+        Ticker.Symbol.NZD_USD: "NZD_USD",
     }
 
     def create_ticker_data(
@@ -80,7 +79,7 @@ class TestTickerApi(ApiTestBase):
         get_mock.return_value = self.create_response(data=self.create_tickers_data())
         ticker_response = self.call_api()
         symbols = [ticker.symbol for ticker in ticker_response.tickers]
-        for symbol in Symbol:
+        for symbol in Ticker.Symbol:
             assert symbol in symbols
             symbols.remove(symbol)
         else:
