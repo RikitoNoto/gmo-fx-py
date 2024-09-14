@@ -39,98 +39,55 @@ class TestPositionSummaryApi(ApiTestBase):
             "symbol": symbol,
         }
 
+    def check_parse_a_data(self, get_mock: MagicMock, **kwargs) -> Position:
+        get_mock.return_value = self.create_response(
+            data=[self.create_position_summary_data(**kwargs)]
+        )
+        response = self.call_api()
+        assert len(response.positions) == 1
+        return response.positions[0]
+
     @patch("gmo_fx.api.api_base.get")
     def test_404_error(self, get_mock: MagicMock):
         self.check_404_error(get_mock, lambda: self.call_api())
 
     @patch("gmo_fx.api.api_base.get")
     def test_should_get_average_position_rate(self, get_mock: MagicMock):
-        get_mock.return_value = self.create_response(
-            data=[self.create_position_summary_data(average_position_rate=1.0)]
-        )
-        response = self.call_api()
-        average_position_rates = [
-            position.average_position_rate for position in response.positions
-        ]
-        assert average_position_rates[0] == 1.0
+        position = self.check_parse_a_data(get_mock=get_mock, average_position_rate=1.1)
+        assert position.average_position_rate == 1.1
 
     @patch("gmo_fx.api.api_base.get")
     def test_should_get_position_loss_gain(self, get_mock: MagicMock):
-        get_mock.return_value = self.create_response(
-            data=[self.create_position_summary_data(position_loss_gain=1.0)]
-        )
-        response = self.call_api()
-        position_loss_gains = [
-            position.position_loss_gain for position in response.positions
-        ]
-        assert position_loss_gains[0] == 1.0
+        position = self.check_parse_a_data(get_mock=get_mock, position_loss_gain=23.54)
+        assert position.position_loss_gain == 23.54
 
     @patch("gmo_fx.api.api_base.get")
-    def test_should_get_position_side_buy(self, get_mock: MagicMock):
-        get_mock.return_value = self.create_response(
-            data=[self.create_position_summary_data(side="BUY")]
-        )
-        response = self.call_api()
-        sides = [position.side for position in response.positions]
-        assert sides[0] == Position.Side.BUY
+    def test_should_get_position_side(self, get_mock: MagicMock):
+        for side in Position.Side:
 
-    @patch("gmo_fx.api.api_base.get")
-    def test_should_get_position_side_sell(self, get_mock: MagicMock):
-        get_mock.return_value = self.create_response(
-            data=[self.create_position_summary_data(side="SELL")]
-        )
-        response = self.call_api()
-        sides = [position.side for position in response.positions]
-        assert sides[0] == Position.Side.SELL
+            position = self.check_parse_a_data(get_mock=get_mock, side=side)
+            assert position.side == side
 
     @patch("gmo_fx.api.api_base.get")
     def test_should_get_position_sum_ordered_size(self, get_mock: MagicMock):
-        get_mock.return_value = self.create_response(
-            data=[self.create_position_summary_data(sum_ordered_size=984)]
-        )
-        response = self.call_api()
-        sum_ordered_sizes = [
-            position.sum_ordered_size for position in response.positions
-        ]
-        assert sum_ordered_sizes[0] == 984
+        position = self.check_parse_a_data(get_mock=get_mock, sum_ordered_size=984)
+        assert position.sum_ordered_size == 984
 
     @patch("gmo_fx.api.api_base.get")
     def test_should_get_position_sum_position_size(self, get_mock: MagicMock):
-        get_mock.return_value = self.create_response(
-            data=[self.create_position_summary_data(sum_position_size=984)]
-        )
-        response = self.call_api()
-        sum_position_sizes = [
-            position.sum_position_size for position in response.positions
-        ]
-        assert sum_position_sizes[0] == 984
+        position = self.check_parse_a_data(get_mock=get_mock, sum_position_size=1984)
+        assert position.sum_position_size == 1984
 
     @patch("gmo_fx.api.api_base.get")
     def test_should_get_position_sum_total_swap(self, get_mock: MagicMock):
-        get_mock.return_value = self.create_response(
-            data=[self.create_position_summary_data(sum_total_swap=654.6)]
-        )
-        response = self.call_api()
-        sum_total_swaps = [position.sum_total_swap for position in response.positions]
-        assert sum_total_swaps[0] == 654.6
+        position = self.check_parse_a_data(get_mock=get_mock, sum_total_swap=654.6)
+        assert position.sum_total_swap == 654.6
 
     @patch("gmo_fx.api.api_base.get")
-    def test_should_get_position_symbol_usd_jpy(self, get_mock: MagicMock):
-        get_mock.return_value = self.create_response(
-            data=[self.create_position_summary_data(symbol="USD_JPY")]
-        )
-        response = self.call_api()
-        symbols = [position.symbol for position in response.positions]
-        assert symbols[0] == Position.Symbol.USD_JPY
-
-    @patch("gmo_fx.api.api_base.get")
-    def test_should_get_position_symbol_gbp_usd(self, get_mock: MagicMock):
-        get_mock.return_value = self.create_response(
-            data=[self.create_position_summary_data(symbol="GBP_USD")]
-        )
-        response = self.call_api()
-        symbols = [position.symbol for position in response.positions]
-        assert symbols[0] == Position.Symbol.GBP_USD
+    def test_should_get_position_symbol(self, get_mock: MagicMock):
+        for symbol in Position.Symbol:
+            position = self.check_parse_a_data(get_mock=get_mock, symbol=symbol.value)
+            assert position.symbol == symbol
 
     @patch("gmo_fx.api.api_base.get")
     def test_should_get_some_positions(self, get_mock: MagicMock):
