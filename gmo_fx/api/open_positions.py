@@ -5,14 +5,13 @@ from typing import Optional
 from requests import Response
 from gmo_fx.api.api_base import PrivateApiBase
 from gmo_fx.api.response import Response as ResponseBase
-from gmo_fx.common import Symbol
+from gmo_fx.common import Side, Symbol
 
 
 @dataclass
 class OpenPosition:
-    class Side(Enum):
-        BUY = "BUY"
-        SELL = "SELL"
+    Side = Side
+    Symbol = Symbol
 
     position_id: int
     symbol: Symbol
@@ -36,7 +35,7 @@ class OpenPositionsResponse(ResponseBase):
         self.open_positions = [
             OpenPosition(
                 position_id=d["positionId"],
-                symbol=Symbol(d["symbol"]),
+                symbol=OpenPosition.Symbol(d["symbol"]),
                 side=OpenPosition.Side(d["side"]),
                 size=int(d["size"]),
                 ordered_size=int(d["orderedSize"]),
@@ -52,6 +51,7 @@ class OpenPositionsResponse(ResponseBase):
 
 
 class OpenPositionsApi(PrivateApiBase):
+    Symbol = Symbol
 
     @property
     def _path(self) -> str:

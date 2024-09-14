@@ -1,8 +1,6 @@
 from datetime import datetime, timezone
-import re
-from typing import Callable, Optional, Union
+from typing import Optional
 from unittest.mock import MagicMock, patch
-from gmo_fx.common import Symbol
 from gmo_fx.api.open_positions import (
     OpenPosition,
     OpenPositionsApi,
@@ -16,7 +14,7 @@ class TestOpenPositionApi(ApiTestBase):
 
     def call_api(
         self,
-        symbol: Optional[Symbol] = None,
+        symbol: Optional[OpenPositionsApi.Symbol] = None,
         prev_id: Optional[int] = None,
         count: Optional[int] = None,
     ) -> OpenPositionsResponse:
@@ -84,7 +82,7 @@ class TestOpenPositionApi(ApiTestBase):
         get_mock: MagicMock,
     ) -> None:
         get_mock.return_value = self.create_response()
-        self.call_api(symbol=Symbol.GBP_USD)
+        self.call_api(symbol=OpenPositionsApi.Symbol.GBP_USD)
         url = get_mock.mock_calls[0].args[0]
         assert "symbol=GBP_USD" in url
 
@@ -155,7 +153,7 @@ class TestOpenPositionApi(ApiTestBase):
 
     @patch("gmo_fx.api.api_base.get")
     def test_should_get_symbol(self, get_mock: MagicMock):
-        for symbol in Symbol:
+        for symbol in OpenPosition.Symbol:
             response = self.check_parse_a_data(get_mock, symbol=symbol.value)
             assert response.open_positions[0].symbol == symbol
 

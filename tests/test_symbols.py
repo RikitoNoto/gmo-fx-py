@@ -1,7 +1,6 @@
 from typing import Callable, Optional
 from unittest.mock import MagicMock, patch
-from gmo_fx.common import Symbol
-from gmo_fx.api.symbols import SymbolsApi, SymbolsResponse
+from gmo_fx.api.symbols import Rule, SymbolsApi, SymbolsResponse
 
 from tests.api_test_base import ApiTestBase
 
@@ -25,20 +24,20 @@ class TestSymbolsApi(ApiTestBase):
     ]
 
     SYMBOLS_TABLE = {
-        Symbol.USD_JPY: "USD_JPY",
-        Symbol.EUR_JPY: "EUR_JPY",
-        Symbol.GBP_JPY: "GBP_JPY",
-        Symbol.AUD_JPY: "AUD_JPY",
-        Symbol.NZD_JPY: "NZD_JPY",
-        Symbol.CAD_JPY: "CAD_JPY",
-        Symbol.CHF_JPY: "CHF_JPY",
-        Symbol.TRY_JPY: "TRY_JPY",
-        Symbol.ZAR_JPY: "ZAR_JPY",
-        Symbol.MXN_JPY: "MXN_JPY",
-        Symbol.EUR_USD: "EUR_USD",
-        Symbol.GBP_USD: "GBP_USD",
-        Symbol.AUD_USD: "AUD_USD",
-        Symbol.NZD_USD: "NZD_USD",
+        Rule.Symbol.USD_JPY: "USD_JPY",
+        Rule.Symbol.EUR_JPY: "EUR_JPY",
+        Rule.Symbol.GBP_JPY: "GBP_JPY",
+        Rule.Symbol.AUD_JPY: "AUD_JPY",
+        Rule.Symbol.NZD_JPY: "NZD_JPY",
+        Rule.Symbol.CAD_JPY: "CAD_JPY",
+        Rule.Symbol.CHF_JPY: "CHF_JPY",
+        Rule.Symbol.TRY_JPY: "TRY_JPY",
+        Rule.Symbol.ZAR_JPY: "ZAR_JPY",
+        Rule.Symbol.MXN_JPY: "MXN_JPY",
+        Rule.Symbol.EUR_USD: "EUR_USD",
+        Rule.Symbol.GBP_USD: "GBP_USD",
+        Rule.Symbol.AUD_USD: "AUD_USD",
+        Rule.Symbol.NZD_USD: "NZD_USD",
     }
 
     def call_api(
@@ -79,7 +78,7 @@ class TestSymbolsApi(ApiTestBase):
         get_mock.return_value = self.create_response(data=self.create_symbols_data())
         symbols_response = self.call_api()
         symbols = [rule.symbol for rule in symbols_response.rules]
-        for symbol in Symbol:
+        for symbol in Rule.Symbol:
             assert symbol in symbols
             symbols.remove(symbol)
         else:
