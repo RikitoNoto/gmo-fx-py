@@ -30,12 +30,12 @@ class TestPositionSummaryApi(ApiTestBase):
         symbol: str = "USD_JPY",
     ) -> dict:
         return {
-            "averagePositionRate": average_position_rate,
-            "positionLossGain": position_loss_gain,
+            "averagePositionRate": str(average_position_rate),
+            "positionLossGain": str(position_loss_gain),
             "side": side,
-            "sumOrderedSize": sum_ordered_size,
-            "sumPositionSize": sum_position_size,
-            "sumTotalSwap": sum_total_swap,
+            "sumOrderedSize": str(sum_ordered_size),
+            "sumPositionSize": str(sum_position_size),
+            "sumTotalSwap": str(sum_total_swap),
             "symbol": symbol,
         }
 

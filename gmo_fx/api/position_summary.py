@@ -30,12 +30,12 @@ class PositionSummaryResponse(ResponseBase):
         data = response["data"]
         self.positions = [
             Position(
-                average_position_rate=d["averagePositionRate"],
-                position_loss_gain=d["positionLossGain"],
+                average_position_rate=float(d["averagePositionRate"]),
+                position_loss_gain=float(d["positionLossGain"]),
                 side=Position.Side(d["side"]),
-                sum_ordered_size=d["sumOrderedSize"],
-                sum_position_size=d["sumPositionSize"],
-                sum_total_swap=d["sumTotalSwap"],
+                sum_ordered_size=int(d["sumOrderedSize"]),
+                sum_position_size=int(d["sumPositionSize"]),
+                sum_total_swap=float(d["sumTotalSwap"]),
                 symbol=Position.Symbol(d["symbol"]),
             )
             for d in data
