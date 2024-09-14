@@ -9,14 +9,18 @@ from gmo_fx.common import SettleType, Side, Symbol
 
 @dataclass
 class Execution:
+    Symbol = Symbol
+    Side = Side
+    SettleType = SettleType
+
     amount: float
     execution_id: int
     client_order_id: str
     order_id: int
     position_id: int
-    symbol: str
-    side: str
-    settle_type: str
+    symbol: Symbol
+    side: Side
+    settle_type: SettleType
     size: int
     price: float
     loss_gain: int
@@ -57,6 +61,7 @@ class LatestExecutionsResponse(ResponseBase):
 
 
 class LatestExecutionsApi(PrivateApiBase):
+    Symbol = Symbol
 
     @property
     def _path(self) -> str:
