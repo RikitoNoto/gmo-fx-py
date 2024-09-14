@@ -9,6 +9,7 @@ from gmo_fx.urls import BASE_URL_PUBLIC
 
 @dataclass
 class Rule:
+    Symbol = Symbol
     symbol: Symbol
     min_open_order_size: int
     max_order_size: int
@@ -26,7 +27,7 @@ class SymbolsResponse(ResponseBase):
         data = response["data"]
         self.rules = [
             Rule(
-                symbol=Symbol(d["symbol"]),
+                symbol=Rule.Symbol(d["symbol"]),
                 min_open_order_size=int(d["minOpenOrderSize"]),
                 max_order_size=int(d["maxOrderSize"]),
                 size_step=int(d["sizeStep"]),

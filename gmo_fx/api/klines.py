@@ -9,21 +9,6 @@ from gmo_fx.common import Symbol
 from gmo_fx.urls import BASE_URL_PUBLIC
 
 
-class KlineInterval(Enum):
-    Min1 = "1min"
-    Min5 = "5min"
-    Min10 = "10min"
-    Min15 = "15min"
-    Min30 = "30min"
-    H1 = "1hour"
-    H4 = "4hour"
-    H8 = "8hour"
-    H12 = "12hour"
-    D1 = "1day"
-    W1 = "1week"
-    M1 = "1month"
-
-
 @dataclass
 class Kline:
     open_time: datetime
@@ -54,6 +39,21 @@ class KlinesResponse(ResponseBase):
 
 
 class KlinesApi(PublicApiBase):
+    Symbol = Symbol
+
+    class KlineInterval(Enum):
+        Min1 = "1min"
+        Min5 = "5min"
+        Min10 = "10min"
+        Min15 = "15min"
+        Min30 = "30min"
+        H1 = "1hour"
+        H4 = "4hour"
+        H8 = "8hour"
+        H12 = "12hour"
+        D1 = "1day"
+        W1 = "1week"
+        M1 = "1month"
 
     @property
     def _path(self) -> str:
@@ -72,12 +72,12 @@ class KlinesApi(PublicApiBase):
     ) -> KlinesResponse:
         date_str = f"{date.year:04}"
         if interval in (
-            KlineInterval.Min1,
-            KlineInterval.Min5,
-            KlineInterval.Min10,
-            KlineInterval.Min15,
-            KlineInterval.Min30,
-            KlineInterval.H1,
+            self.KlineInterval.Min1,
+            self.KlineInterval.Min5,
+            self.KlineInterval.Min10,
+            self.KlineInterval.Min15,
+            self.KlineInterval.Min30,
+            self.KlineInterval.H1,
         ):
             date_str += f"{date.month:02}{date.day:02}"
 
