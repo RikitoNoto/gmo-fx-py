@@ -41,7 +41,7 @@ class TestLatestExecutionsApi(ApiTestBase):
         timestamp: str = "2022-11-12T13:56:12.02113Z",
     ) -> dict:
         return {
-            "amount": amount,
+            "amount": str(amount),
             "executionId": execution_id,
             "clientOrderId": client_order_id,
             "orderId": order_id,
@@ -49,11 +49,11 @@ class TestLatestExecutionsApi(ApiTestBase):
             "symbol": symbol,
             "side": side,
             "settleType": settle_type,
-            "size": f"{size}",
-            "price": f"{price}",
-            "lossGain": f"{loss_gain}",
-            "fee": f"{fee}",
-            "settledSwap": f"{settled_swap}",
+            "size": str(size),
+            "price": str(price),
+            "lossGain": str(loss_gain),
+            "fee": str(fee),
+            "settledSwap": str(settled_swap),
             "timestamp": timestamp,
         }
 

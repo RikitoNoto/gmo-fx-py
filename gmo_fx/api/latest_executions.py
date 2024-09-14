@@ -39,7 +39,7 @@ class LatestExecutionsResponse(ResponseBase):
         data = response["data"]
         self.executions = [
             Execution(
-                amount=d["amount"],
+                amount=float(d["amount"]),
                 execution_id=d["executionId"],
                 client_order_id=d["clientOrderId"],
                 order_id=d["orderId"],
