@@ -3,14 +3,13 @@ from enum import Enum
 from requests import Response
 from gmo_fx.api.api_base import PrivateApiBase
 from gmo_fx.api.response import Response as ResponseBase
-from gmo_fx.common import Symbol
+from gmo_fx.common import Side, Symbol
 
 
 @dataclass
 class Position:
-    class Side(Enum):
-        BUY = "BUY"
-        SELL = "SELL"
+    Side = Side
+    Symbol = Symbol
 
     average_position_rate: float
     position_loss_gain: float
@@ -37,13 +36,14 @@ class PositionSummaryResponse(ResponseBase):
                 sum_ordered_size=d["sumOrderedSize"],
                 sum_position_size=d["sumPositionSize"],
                 sum_total_swap=d["sumTotalSwap"],
-                symbol=Symbol(d["symbol"]),
+                symbol=Position.Symbol(d["symbol"]),
             )
             for d in data
         ]
 
 
 class PositionSummaryApi(PrivateApiBase):
+    Symbol = Symbol
 
     @property
     def _path(self) -> str:

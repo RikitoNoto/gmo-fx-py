@@ -1,7 +1,4 @@
-import re
-from typing import Callable, Optional
 from unittest.mock import MagicMock, patch
-from gmo_fx.common import Symbol
 from gmo_fx.api.position_summary import (
     Position,
     PositionSummaryApi,
@@ -15,7 +12,7 @@ class TestPositionSummaryApi(ApiTestBase):
 
     def call_api(
         self,
-        symbol: Symbol = Symbol.USD_JPY,
+        symbol: PositionSummaryApi.Symbol = PositionSummaryApi.Symbol.USD_JPY,
     ) -> PositionSummaryResponse:
         return PositionSummaryApi(
             api_key="",
@@ -124,7 +121,7 @@ class TestPositionSummaryApi(ApiTestBase):
         )
         response = self.call_api()
         symbols = [position.symbol for position in response.positions]
-        assert symbols[0] == Symbol.USD_JPY
+        assert symbols[0] == Position.Symbol.USD_JPY
 
     @patch("gmo_fx.api.api_base.get")
     def test_should_get_position_symbol_gbp_usd(self, get_mock: MagicMock):
@@ -133,7 +130,7 @@ class TestPositionSummaryApi(ApiTestBase):
         )
         response = self.call_api()
         symbols = [position.symbol for position in response.positions]
-        assert symbols[0] == Symbol.GBP_USD
+        assert symbols[0] == Position.Symbol.GBP_USD
 
     @patch("gmo_fx.api.api_base.get")
     def test_should_get_some_positions(self, get_mock: MagicMock):
@@ -145,8 +142,8 @@ class TestPositionSummaryApi(ApiTestBase):
         )
         response = self.call_api()
         symbols = [position.symbol for position in response.positions]
-        assert symbols[0] == Symbol.USD_JPY
-        assert symbols[1] == Symbol.GBP_USD
+        assert symbols[0] == Position.Symbol.USD_JPY
+        assert symbols[1] == Position.Symbol.GBP_USD
 
     @patch("gmo_fx.api.api_base.get")
     def test_check_url(
@@ -167,6 +164,6 @@ class TestPositionSummaryApi(ApiTestBase):
         get_mock: MagicMock,
     ) -> None:
         get_mock.return_value = self.create_response(data=[])
-        self.call_api(symbol=Symbol.AUD_JPY)
+        self.call_api(symbol=PositionSummaryApi.Symbol.AUD_JPY)
         url = get_mock.mock_calls[0].args[0]
         assert "symbol=AUD_JPY" in url
