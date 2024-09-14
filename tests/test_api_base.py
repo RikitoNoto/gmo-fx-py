@@ -1,12 +1,14 @@
 import hmac
 import hashlib
 import json
+import pytest
 import time
 import time_machine
 from datetime import datetime
-from gmo_fx.api.api_base import PrivateApiBase
-from gmo_fx.api.response import Response
-from typing import Any
+from api.api_base import PrivateApiBase
+from api.response import Response
+from typing import Any, Optional
+from unittest.mock import MagicMock, patch
 
 
 class PrivateApiBaseStub(PrivateApiBase):
@@ -17,16 +19,23 @@ class PrivateApiBaseStub(PrivateApiBase):
         method: str = "GET",
         body: dict = {},
         path: str = "test",
+        is_call: bool = False,
     ) -> None:
         self.__method = (
             self._HttpMethod.POST if method == "POST" else self._HttpMethod.GET
         )
         self.__path = path
         self.__body = body
+        self.__is_call = is_call
         super().__init__(api_key, secret_key)
 
     def __call__(self, *args: Any, **kwds: Any) -> Response:
-        pass
+        if self.__is_call:
+            return super().__call__(*args, **kwds)
+
+    @property
+    def _response_parser(self):
+        return MagicMock()
 
     @property
     def _path(
@@ -56,6 +65,45 @@ class TestPrivateApiBase:
     def test_api_key_header(self):
         header = PrivateApiBaseStub(api_key="api_key", secret_key="secret").header
         assert header["API-KEY"] == "api_key"
+
+    bodys = [
+        # (body, expect),
+        (None, None),
+        ({}, "{}"),
+        ({"test": "test"}, '{"test":"test"}'),
+        ({"test": ""}, '{"test":""}'),
+    ]
+
+    @pytest.mark.parametrize(
+        "body, expect",
+        bodys,
+    )
+    @patch("api.api_base.post")
+    def test_should_post_with_body(
+        self,
+        post_mock: MagicMock,
+        body: Optional[dict],
+        expect: Optional[str],
+    ):
+        respose = MagicMock()
+        respose.status_code = 200
+        respose.json.return_value = {}
+        post_mock.return_value = respose
+        api = PrivateApiBaseStub(
+            api_key="api_key",
+            secret_key="secret",
+            body=body,
+            method="POST",
+            is_call=True,
+        )
+        api(data=body)
+        post_mock.assert_called_once()
+        kall = post_mock.call_args
+        expect = (
+            expect.replace(":", ": ") if expect else None
+        )  # FIXME: 定義でスペースを空けるとテストがエラーになる
+        assert kall.kwargs["data"] == expect
+        assert api._body == body
 
     @time_machine.travel(datetime(2022, 12, 25))
     def test_timestamp(self):

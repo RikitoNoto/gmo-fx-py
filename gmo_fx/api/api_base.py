@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from enum import auto, Enum
 from gmo_fx.api.response import Response as ApiResponse
-from requests import get, Response
+from requests import get, post, Response
 from typing import Any, Optional, Type
 
 
@@ -36,7 +36,7 @@ class ApiBase(ABC):
 
     @property
     def _body(self) -> dict:
-        return {}
+        return getattr(self, "_request_body", {})
 
     def __call__(self, *args: Any, **kwds: Any) -> ApiResponse:
 
@@ -64,17 +64,23 @@ class ApiBase(ABC):
         return {}
 
     def _call_api(
-        self,
-        path_query: Optional[str] = None,
+        self, path_query: Optional[str] = None, data: Optional[dict] = None
     ) -> Response:
+        url = f"{self._endpoint}/{self.VERSION}/{self._path}"
+        if path_query:
+            url += f"?{path_query}"
         if self._method == self._HttpMethod.GET:
-            url = f"{self._endpoint}/{self.VERSION}/{self._path}"
-            if path_query:
-                url += f"?{path_query}"
             return get(
                 url,
                 headers=self._create_header(),
             )
+        elif self._method == self._HttpMethod.POST:
+            req_body = None
+            if data is not None:
+                self._request_body = data
+                req_body = json.dumps(data)
+
+            return post(url, headers=self._create_header(), data=req_body)
         raise ValueError
 
 
