@@ -50,3 +50,4 @@ class ExecutionType(Enum):
     MARKET = "MARKET"
     LIMIT = "LIMIT"
     STOP = "STOP"
+    OCO = "OCO"

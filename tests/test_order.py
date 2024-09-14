@@ -1,5 +1,7 @@
-from datetime import datetime, timezone
+import json
 import re
+from datetime import datetime, timezone
+from tests.api_test_base import ApiTestBase
 from typing import Callable, Optional, Union
 from unittest.mock import MagicMock, patch
 from api.order import (
@@ -8,21 +10,35 @@ from api.order import (
     OrderResponse,
 )
 
-from tests.api_test_base import ApiTestBase
-
 
 class TestOrderApi(ApiTestBase):
 
     def call_api(
         self,
-        # symbol: Optional[Symbol] = None,
-        # prev_id: Optional[int] = None,
-        # count: Optional[int] = None,
+        symbol: Order.Symbol = Order.Symbol.USD_JPY,
+        side: Order.Side = Order.Side.BUY,
+        size: int = 1000,
+        client_order_id: Optional[str] = None,
+        execution_type: Order.ExecutionType = Order.ExecutionType.LIMIT,
+        limit_price: Optional[float] = None,
+        stop_price: Optional[float] = None,
+        lower_bound: Optional[float] = None,
+        upper_bound: Optional[float] = None,
     ) -> OrderResponse:
         return OrderApi(
             api_key="",
             secret_key="",
-        )()
+        )(
+            symbol=symbol,
+            side=side,
+            size=size,
+            client_order_id=client_order_id,
+            execution_type=execution_type,
+            limit_price=limit_price,
+            stop_price=stop_price,
+            lower_bound=lower_bound,
+            upper_bound=upper_bound,
+        )
 
     def create_response(
         self,
@@ -201,123 +217,132 @@ class TestOrderApi(ApiTestBase):
             2024, 9, 13, 15, 21, 3, 59000, tzinfo=timezone.utc
         )
 
-    # @patch("gmo_fx.api.api_base.get")
-    # def test_should_call_api_with_symbol(
-    #     self,
-    #     get_mock: MagicMock,
-    # ) -> None:
-    #     get_mock.return_value = self.create_response()
-    #     self.call_api(symbol=Symbol.GBP_USD)
-    #     url = get_mock.mock_calls[0].args[0]
-    #     assert "symbol=GBP_USD" in url
+    @patch("gmo_fx.api.api_base.post")
+    def test_should_parse_some_data(self, post_mock: MagicMock) -> OrderResponse:
+        post_mock.return_value = self.create_response(
+            data=[self.create_order_data(), self.create_order_data()]
+        )
+        response = self.call_api()
+        assert len(response.orders) == 2
 
-    # @patch("gmo_fx.api.api_base.get")
-    # def test_should_call_api_without_symbol(
-    #     self,
-    #     get_mock: MagicMock,
-    # ) -> None:
-    #     get_mock.return_value = self.create_response()
-    #     self.call_api(symbol=None)
-    #     url = get_mock.mock_calls[0].args[0]
-    #     assert "symbol=" not in url
+    def check_call_with(self, post_mock, **kwargs):
+        post_mock.return_value = self.create_response()
+        self.call_api(**kwargs)
+        kall = post_mock.call_args
+        request_body = kall.kwargs["data"]
+        return json.loads(request_body)
 
-    # @patch("gmo_fx.api.api_base.get")
-    # def test_should_call_api_with_prev_id(
-    #     self,
-    #     get_mock: MagicMock,
-    # ) -> None:
-    #     get_mock.return_value = self.create_response()
-    #     self.call_api(prev_id=12345)
-    #     url = get_mock.mock_calls[0].args[0]
-    #     assert "prevId=12345" in url
+    @patch("gmo_fx.api.api_base.post")
+    def test_should_call_api_with_symbol(
+        self,
+        post_mock: MagicMock,
+    ) -> None:
+        for symbol in Order.Symbol:
+            body = self.check_call_with(post_mock, symbol=symbol)
+            assert body["symbol"] == symbol.value
 
-    # @patch("gmo_fx.api.api_base.get")
-    # def test_should_call_api_without_prev_id(
-    #     self,
-    #     get_mock: MagicMock,
-    # ) -> None:
-    #     get_mock.return_value = self.create_response()
-    #     self.call_api(prev_id=None)
-    #     url = get_mock.mock_calls[0].args[0]
-    #     assert "prevId=" not in url
+    @patch("gmo_fx.api.api_base.post")
+    def test_should_call_api_with_side(
+        self,
+        post_mock: MagicMock,
+    ) -> None:
+        for side in Order.Side:
+            body = self.check_call_with(post_mock, side=side)
+            assert body["side"] == side.value
 
-    # @patch("gmo_fx.api.api_base.get")
-    # def test_should_call_api_with_count(
-    #     self,
-    #     get_mock: MagicMock,
-    # ) -> None:
-    #     get_mock.return_value = self.create_response()
-    #     self.call_api(count=12345)
-    #     url = get_mock.mock_calls[0].args[0]
-    #     assert "count=12345" in url
+    @patch("gmo_fx.api.api_base.post")
+    def test_should_call_api_with_size(
+        self,
+        post_mock: MagicMock,
+    ) -> None:
+        body = self.check_call_with(post_mock, size=6530)
+        assert body["size"] == "6530"
 
-    # @patch("gmo_fx.api.api_base.get")
-    # def test_should_call_api_without_count(
-    #     self,
-    #     get_mock: MagicMock,
-    # ) -> None:
-    #     get_mock.return_value = self.create_response()
-    #     self.call_api(count=None)
-    #     url = get_mock.mock_calls[0].args[0]
-    #     assert "count=" not in url
+    @patch("gmo_fx.api.api_base.post")
+    def test_should_call_api_with_client_order_id(
+        self,
+        post_mock: MagicMock,
+    ) -> None:
+        body = self.check_call_with(post_mock, client_order_id="alfsdj32432enl")
+        assert body["clientOrderId"] == "alfsdj32432enl"
 
-    # def check_parse_a_data(
-    #     self, get_mock: MagicMock, **kwargs
-    # ) -> OpenPositionsResponse:
-    #     get_mock.return_value = self.create_response(
-    #         data=[self.create_open_position_data(**kwargs)]
-    #     )
-    #     response = self.call_api()
-    #     assert len(response.open_positions) == 1
-    #     return response
+    @patch("gmo_fx.api.api_base.post")
+    def test_should_call_api_without_client_order_id(
+        self,
+        post_mock: MagicMock,
+    ) -> None:
+        body = self.check_call_with(post_mock, client_order_id=None)
+        assert "clientOrderId" not in body.keys()
 
-    # @patch("gmo_fx.api.api_base.get")
-    # def test_should_get_position_id(self, get_mock: MagicMock):
-    #     response = self.check_parse_a_data(get_mock, position_id=123123)
-    #     assert response.open_positions[0].position_id == 123123
+    @patch("gmo_fx.api.api_base.post")
+    def test_should_call_api_with_execution_type(
+        self,
+        post_mock: MagicMock,
+    ) -> None:
+        for execution_type in Order.ExecutionType:
+            body = self.check_call_with(post_mock, execution_type=execution_type)
+            assert body["executionType"] == execution_type.value
 
-    # @patch("gmo_fx.api.api_base.get")
-    # def test_should_get_symbol(self, get_mock: MagicMock):
-    #     for symbol in Symbol:
-    #         response = self.check_parse_a_data(get_mock, symbol=symbol.value)
-    #         assert response.open_positions[0].symbol == symbol
+    @patch("gmo_fx.api.api_base.post")
+    def test_should_call_api_with_limit_price(
+        self,
+        post_mock: MagicMock,
+    ) -> None:
+        body = self.check_call_with(post_mock, limit_price=155.66)
+        assert body["limitPrice"] == "155.66"
 
-    # @patch("gmo_fx.api.api_base.get")
-    # def test_should_get_side(self, get_mock: MagicMock):
-    #     for side in OpenPosition.Side:
-    #         response = self.check_parse_a_data(get_mock, side=side.value)
-    #         assert response.open_positions[0].side == side
+    @patch("gmo_fx.api.api_base.post")
+    def test_should_call_api_without_limit_price(
+        self,
+        post_mock: MagicMock,
+    ) -> None:
+        body = self.check_call_with(post_mock, limit_price=None)
+        assert "limitPrice" not in body.keys()
 
-    # @patch("gmo_fx.api.api_base.get")
-    # def test_should_get_size(self, get_mock: MagicMock):
-    #     response = self.check_parse_a_data(get_mock, size=130204)
-    #     assert response.open_positions[0].size == 130204
+    @patch("gmo_fx.api.api_base.post")
+    def test_should_call_api_with_stop_price(
+        self,
+        post_mock: MagicMock,
+    ) -> None:
+        body = self.check_call_with(post_mock, stop_price=154.67)
+        assert body["stopPrice"] == "154.67"
 
-    # @patch("gmo_fx.api.api_base.get")
-    # def test_should_get_ordersize(self, get_mock: MagicMock):
-    #     response = self.check_parse_a_data(get_mock, ordered_size=99864)
-    #     assert response.open_positions[0].ordered_size == 99864
+    @patch("gmo_fx.api.api_base.post")
+    def test_should_call_api_without_stop_price(
+        self,
+        post_mock: MagicMock,
+    ) -> None:
+        body = self.check_call_with(post_mock, stop_price=None)
+        assert "stopPrice" not in body.keys()
 
-    # @patch("gmo_fx.api.api_base.get")
-    # def test_should_get_price(self, get_mock: MagicMock):
-    #     response = self.check_parse_a_data(get_mock, price=101.123)
-    #     assert response.open_positions[0].price == 101.123
+    @patch("gmo_fx.api.api_base.post")
+    def test_should_call_api_with_lower_bound(
+        self,
+        post_mock: MagicMock,
+    ) -> None:
+        body = self.check_call_with(post_mock, lower_bound=101.93)
+        assert body["lowerBound"] == "101.93"
 
-    # @patch("gmo_fx.api.api_base.get")
-    # def test_should_get_loss_gain(self, get_mock: MagicMock):
-    #     response = self.check_parse_a_data(get_mock, loss_gain=10500.66)
-    #     assert response.open_positions[0].loss_gain == 10500.66
+    @patch("gmo_fx.api.api_base.post")
+    def test_should_call_api_without_lower_bound(
+        self,
+        post_mock: MagicMock,
+    ) -> None:
+        body = self.check_call_with(post_mock, lower_bound=None)
+        assert "lowerBound" not in body.keys()
 
-    # @patch("gmo_fx.api.api_base.get")
-    # def test_should_get_total_swap(self, get_mock: MagicMock):
-    #     response = self.check_parse_a_data(get_mock, total_swap=166.13)
-    #     assert response.open_positions[0].total_swap == 166.13
+    @patch("gmo_fx.api.api_base.post")
+    def test_should_call_api_with_upper_bound(
+        self,
+        post_mock: MagicMock,
+    ) -> None:
+        body = self.check_call_with(post_mock, upper_bound=99.85)
+        assert body["upperBound"] == "99.85"
 
-    # @patch("gmo_fx.api.api_base.get")
-    # def test_should_get_timestamp(self, get_mock: MagicMock):
-    #     response = self.check_parse_a_data(
-    #         get_mock, timestamp="2019-03-21T05:18:09.011Z"
-    #     )
-    #     assert response.open_positions[0].timestamp == datetime(
-    #         2019, 3, 21, 5, 18, 9, 11000, tzinfo=timezone.utc
-    #     )
+    @patch("gmo_fx.api.api_base.post")
+    def test_should_call_api_without_upper_bound(
+        self,
+        post_mock: MagicMock,
+    ) -> None:
+        body = self.check_call_with(post_mock, upper_bound=None)
+        assert "upperBound" not in body.keys()

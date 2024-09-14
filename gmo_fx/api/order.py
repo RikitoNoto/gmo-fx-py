@@ -98,24 +98,40 @@ class OrderApi(PrivateApiBase):
             f"response: {response.text}"
         )
 
-    # def __call__(
-    #     self,
-    #     symbol: Optional[Symbol] = None,
-    #     prev_id: Optional[int] = None,
-    #     count: Optional[int] = None,
-    # ) -> OpenPositionsResponse:
-    #     path_query = ""
-    #     if symbol:
-    #         path_query = f"symbol={symbol.value}"
+    def __call__(
+        self,
+        symbol: Order.Symbol,
+        side: Order.Side,
+        size: int,
+        execution_type: Order.ExecutionType,
+        client_order_id: Optional[str] = None,
+        limit_price: Optional[float] = None,
+        stop_price: Optional[float] = None,
+        lower_bound: Optional[float] = None,
+        upper_bound: Optional[float] = None,
+    ) -> OrderResponse:
+        data = {
+            "symbol": symbol.value,
+            "side": side.value,
+            "size": str(size),
+            "executionType": execution_type.value,
+        }
 
-    #     if prev_id:
-    #         if path_query:
-    #             path_query += "&"
-    #         path_query = f"prevId={prev_id}"
+        if client_order_id is not None:
+            data["clientOrderId"] = client_order_id
 
-    #     if count:
-    #         if path_query:
-    #             path_query += "&"
-    #         path_query = f"count={count}"
+        if limit_price is not None:
+            data["limitPrice"] = str(limit_price)
 
-    #     return super().__call__(path_query=path_query)
+        if stop_price is not None:
+            data["stopPrice"] = str(stop_price)
+
+        if lower_bound is not None:
+            data["lowerBound"] = str(lower_bound)
+
+        if upper_bound is not None:
+            data["upperBound"] = str(upper_bound)
+
+        return super().__call__(
+            data=data,
+        )
