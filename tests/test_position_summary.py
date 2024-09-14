@@ -65,7 +65,7 @@ class TestPositionSummaryApi(ApiTestBase):
     def test_should_get_position_side(self, get_mock: MagicMock):
         for side in Position.Side:
 
-            position = self.check_parse_a_data(get_mock=get_mock, side=side)
+            position = self.check_parse_a_data(get_mock=get_mock, side=side.value)
             assert position.side == side
 
     @patch("gmo_fx.api.api_base.get")
