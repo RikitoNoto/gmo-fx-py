@@ -4,11 +4,19 @@ from enum import Enum
 from typing import Optional
 from requests import Response
 from gmo_fx.api.api_base import PrivateApiBase
+
+from gmo_fx.common import (
+    OrderType,
+    SettleType,
+    Side,
+    Symbol,
+)
 from gmo_fx.api.response import Response as ResponseBase
 
 
 @dataclass
 class Order:
+
     class Status(Enum):
         WAITING = "WAITING"
         EXECUTED = "EXECUTED"
@@ -18,13 +26,17 @@ class Order:
         PRICE_BOUND = "PRICE_BOUND"
         OCO = "OCO"
 
-    from gmo_fx.common import (
-        ExecutionType,
-        OrderType,
-        SettleType,
-        Side,
-        Symbol,
-    )
+    class ExecutionType(Enum):
+        """注文タイプ"""
+
+        MARKET = "MARKET"
+        LIMIT = "LIMIT"
+        STOP = "STOP"
+
+    OrderType = OrderType
+    SettleType = SettleType
+    Side = Side
+    Symbol = Symbol
 
     root_order_id: int
     client_order_id: Optional[str]
@@ -78,6 +90,13 @@ class OrderResponse(ResponseBase):
 
 
 class OrderApi(PrivateApiBase):
+    class ExecutionType(Enum):
+        """注文タイプ"""
+
+        MARKET = "MARKET"
+        LIMIT = "LIMIT"
+        STOP = "STOP"
+        OCO = "OCO"
 
     @property
     def _path(self) -> str:
@@ -103,7 +122,7 @@ class OrderApi(PrivateApiBase):
         symbol: Order.Symbol,
         side: Order.Side,
         size: int,
-        execution_type: Order.ExecutionType,
+        execution_type: ExecutionType,
         client_order_id: Optional[str] = None,
         limit_price: Optional[float] = None,
         stop_price: Optional[float] = None,

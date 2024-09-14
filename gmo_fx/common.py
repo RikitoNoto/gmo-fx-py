@@ -42,12 +42,3 @@ class OrderType(Enum):
 
     NORMAL = "NORMAL"
     OCO = "OCO"
-
-
-class ExecutionType(Enum):
-    """注文タイプ"""
-
-    MARKET = "MARKET"
-    LIMIT = "LIMIT"
-    STOP = "STOP"
-    OCO = "OCO"

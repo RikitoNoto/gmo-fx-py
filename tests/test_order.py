@@ -19,7 +19,7 @@ class TestOrderApi(ApiTestBase):
         side: Order.Side = Order.Side.BUY,
         size: int = 1000,
         client_order_id: Optional[str] = None,
-        execution_type: Order.ExecutionType = Order.ExecutionType.LIMIT,
+        execution_type: OrderApi.ExecutionType = OrderApi.ExecutionType.LIMIT,
         limit_price: Optional[float] = None,
         stop_price: Optional[float] = None,
         lower_bound: Optional[float] = None,
@@ -279,7 +279,7 @@ class TestOrderApi(ApiTestBase):
         self,
         post_mock: MagicMock,
     ) -> None:
-        for execution_type in Order.ExecutionType:
+        for execution_type in OrderApi.ExecutionType:
             body = self.check_call_with(post_mock, execution_type=execution_type)
             assert body["executionType"] == execution_type.value
 
