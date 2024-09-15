@@ -98,6 +98,17 @@ class CloseOrderApi(PrivateApiBase):
         STOP = "STOP"
         OCO = "OCO"
 
+    @dataclass
+    class SettlePosition:
+        position_id: int
+        size: int
+
+        def to_dict(self) -> dict:
+            return {
+                "positionId": self.position_id,
+                "size": str(self.size),
+            }
+
     @property
     def _path(self) -> str:
         return "closeOrder"
@@ -128,6 +139,7 @@ class CloseOrderApi(PrivateApiBase):
         stop_price: Optional[float] = None,
         lower_bound: Optional[float] = None,
         upper_bound: Optional[float] = None,
+        settle_position: Optional[list[SettlePosition]] = None,
     ) -> CloseOrderResponse:
         data = {
             "symbol": symbol.value,
@@ -152,6 +164,9 @@ class CloseOrderApi(PrivateApiBase):
 
         if upper_bound is not None:
             data["upperBound"] = str(upper_bound)
+
+        if settle_position is not None:
+            data["settlePosition"] = [settle.to_dict() for settle in settle_position]
 
         return super().__call__(
             data=data,

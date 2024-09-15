@@ -24,6 +24,7 @@ class TestCloseOrderApi(ApiTestBase):
         stop_price: Optional[float] = None,
         lower_bound: Optional[float] = None,
         upper_bound: Optional[float] = None,
+        settle_position: Optional[list[CloseOrderApi.SettlePosition]] = None,
     ) -> CloseOrderResponse:
         return CloseOrderApi(
             api_key="",
@@ -38,6 +39,7 @@ class TestCloseOrderApi(ApiTestBase):
             stop_price=stop_price,
             lower_bound=lower_bound,
             upper_bound=upper_bound,
+            settle_position=settle_position,
         )
 
     def create_response(
@@ -360,3 +362,40 @@ class TestCloseOrderApi(ApiTestBase):
     ) -> None:
         body = self.check_call_with(post_mock, upper_bound=None)
         assert "upperBound" not in body.keys()
+
+    @patch("gmo_fx.api.api_base.post")
+    def test_should_call_api_with_settle_position(
+        self,
+        post_mock: MagicMock,
+    ) -> None:
+        body = self.check_call_with(
+            post_mock,
+            settle_position=[
+                CloseOrderApi.SettlePosition(
+                    position_id=1234441,
+                    size=1442,
+                ),
+                CloseOrderApi.SettlePosition(
+                    position_id=55564,
+                    size=200,
+                ),
+            ],
+        )
+        assert body["settlePosition"] == [
+            {
+                "positionId": 1234441,
+                "size": "1442",
+            },
+            {
+                "positionId": 55564,
+                "size": "200",
+            },
+        ]
+
+    @patch("gmo_fx.api.api_base.post")
+    def test_should_call_api_without_settle_position(
+        self,
+        post_mock: MagicMock,
+    ) -> None:
+        body = self.check_call_with(post_mock, settle_position=None)
+        assert "settlePosition" not in body.keys()
