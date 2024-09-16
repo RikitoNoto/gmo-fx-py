@@ -15,8 +15,8 @@ class TestOrderApi(ApiTestBase):
 
     def call_api(
         self,
-        symbol: Order.Symbol = Order.Symbol.USD_JPY,
-        side: Order.Side = Order.Side.BUY,
+        symbol: OrderApi.Symbol = OrderApi.Symbol.USD_JPY,
+        side: OrderApi.Side = OrderApi.Side.BUY,
         size: int = 1000,
         client_order_id: Optional[str] = None,
         execution_type: OrderApi.ExecutionType = OrderApi.ExecutionType.LIMIT,
@@ -237,7 +237,7 @@ class TestOrderApi(ApiTestBase):
         self,
         post_mock: MagicMock,
     ) -> None:
-        for symbol in Order.Symbol:
+        for symbol in OrderApi.Symbol:
             body = self.check_call_with(post_mock, symbol=symbol)
             assert body["symbol"] == symbol.value
 
@@ -246,7 +246,7 @@ class TestOrderApi(ApiTestBase):
         self,
         post_mock: MagicMock,
     ) -> None:
-        for side in Order.Side:
+        for side in OrderApi.Side:
             body = self.check_call_with(post_mock, side=side)
             assert body["side"] == side.value
 
