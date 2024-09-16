@@ -90,6 +90,9 @@ class OrderResponse(ResponseBase):
 
 
 class OrderApi(PrivateApiBase):
+    Symbol = Symbol
+    Side = Side
+
     class ExecutionType(Enum):
         """注文タイプ"""
 
@@ -119,8 +122,8 @@ class OrderApi(PrivateApiBase):
 
     def __call__(
         self,
-        symbol: Order.Symbol,
-        side: Order.Side,
+        symbol: Symbol,
+        side: Side,
         size: int,
         execution_type: ExecutionType,
         client_order_id: Optional[str] = None,
