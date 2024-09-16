@@ -15,8 +15,8 @@ class TestCloseOrderApi(ApiTestBase):
 
     def call_api(
         self,
-        symbol: CloseOrder.Symbol = CloseOrder.Symbol.USD_JPY,
-        side: CloseOrder.Side = CloseOrder.Side.BUY,
+        symbol: CloseOrderApi.Symbol = CloseOrderApi.Symbol.USD_JPY,
+        side: CloseOrderApi.Side = CloseOrderApi.Side.BUY,
         size: Optional[int] = None,
         client_order_id: Optional[str] = None,
         execution_type: CloseOrderApi.ExecutionType = CloseOrderApi.ExecutionType.LIMIT,
@@ -245,7 +245,7 @@ class TestCloseOrderApi(ApiTestBase):
         self,
         post_mock: MagicMock,
     ) -> None:
-        for symbol in CloseOrder.Symbol:
+        for symbol in CloseOrderApi.Symbol:
             body = self.check_call_with(post_mock, symbol=symbol)
             assert body["symbol"] == symbol.value
 
@@ -254,7 +254,7 @@ class TestCloseOrderApi(ApiTestBase):
         self,
         post_mock: MagicMock,
     ) -> None:
-        for side in CloseOrder.Side:
+        for side in CloseOrderApi.Side:
             body = self.check_call_with(post_mock, side=side)
             assert body["side"] == side.value
 
@@ -295,7 +295,7 @@ class TestCloseOrderApi(ApiTestBase):
         self,
         post_mock: MagicMock,
     ) -> None:
-        for execution_type in CloseOrder.ExecutionType:
+        for execution_type in CloseOrderApi.ExecutionType:
             body = self.check_call_with(post_mock, execution_type=execution_type)
             assert body["executionType"] == execution_type.value
 
