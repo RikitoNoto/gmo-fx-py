@@ -1,3 +1,4 @@
+from typing import Optional
 from unittest.mock import MagicMock, patch
 from gmo_fx.api.position_summary import (
     Position,
@@ -9,6 +10,18 @@ from tests.api_test_base import ApiTestBase
 
 
 class TestPositionSummaryApi(ApiTestBase):
+
+    def create_response(
+        self,
+        data: Optional[list[dict]] = None,
+        status_code: int = 200,
+        text: Optional[str] = None,
+    ) -> MagicMock:
+        return super().create_response(
+            data={"list": data},
+            status_code=status_code,
+            text=text,
+        )
 
     def call_api(
         self,
