@@ -13,6 +13,18 @@ from tests.api_test_base import ApiTestBase
 
 class TestLatestExecutionsApi(ApiTestBase):
 
+    def create_response(
+        self,
+        data: Optional[list[dict]] = None,
+        status_code: int = 200,
+        text: Optional[str] = None,
+    ) -> MagicMock:
+        return super().create_response(
+            data={"list": data},
+            status_code=status_code,
+            text=text,
+        )
+
     def call_api(
         self,
         symbol: LatestExecutionsApi.Symbol = LatestExecutionsApi.Symbol.USD_JPY,

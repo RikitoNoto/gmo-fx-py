@@ -36,7 +36,7 @@ class LatestExecutionsResponse(ResponseBase):
         super().__init__(response)
         self.assets = []
 
-        data = response["data"]
+        data = response["data"]["list"]
         self.executions = [
             Execution(
                 amount=float(d["amount"]),
