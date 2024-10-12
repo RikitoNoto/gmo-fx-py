@@ -27,7 +27,7 @@ class PositionSummaryResponse(ResponseBase):
         super().__init__(response)
         self.assets = []
 
-        data = response["data"]
+        data = response["data"]["list"]
         self.positions = [
             Position(
                 average_position_rate=float(d["averagePositionRate"]),
