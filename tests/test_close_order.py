@@ -71,7 +71,7 @@ class TestCloseOrderApi(ApiTestBase):
         price: Optional[float] = 130.5,
         status: str = "WAITING",
         cancel_type: Optional[str] = "PRICE_BOUND",
-        expiry: str = "20220113",
+        expiry: Optional[str] = "20220113",
         timestamp: str = "2019-03-19T02:15:06.059Z",
     ) -> dict:
         data = {
@@ -215,6 +215,11 @@ class TestCloseOrderApi(ApiTestBase):
     def test_should_get_expiry(self, post_mock: MagicMock):
         close_order = self.check_parse_a_data(post_mock, expiry="20190418")
         assert close_order.expiry == datetime(2019, 4, 18).date()
+
+    @patch("gmo_fx.api.api_base.post")
+    def test_should_not_raise_error_if_expiry_is_none(self, post_mock: MagicMock):
+        close_order = self.check_parse_a_data(post_mock, expiry=None)
+        assert close_order.expiry is None
 
     @patch("gmo_fx.api.api_base.post")
     def test_should_get_timestamp(self, post_mock: MagicMock):
