@@ -7,7 +7,7 @@ AUTHOR_EMAIL = "rikitonoto@gmail.com"
 URL = "https://github.com/RikitoNoto/gmo-fx-py"
 LICENSE = "MIT"
 DOWNLOAD_URL = "https://github.com/RikitoNoto/gmo-fx-py"
-VERSION = "0.6.3"
+VERSION = "0.7.0"
 INSTALL_REQUIRES = [
     "requests>=2.31.0",
 ]
