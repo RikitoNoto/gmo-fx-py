@@ -57,7 +57,7 @@ class TestChangeOcoOrderApi(ApiTestBase):
         settle_type: str = "OPEN",
         size: int = 100,
         price: Optional[float] = 130.5,
-        status: str = "WAITING",
+        status: str = "ORDERED",
         cancel_type: Optional[str] = "OCO",
         expiry: str = "20220113",
         timestamp: str = "2019-03-19T02:15:06.059Z",
