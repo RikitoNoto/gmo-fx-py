@@ -241,7 +241,6 @@ class TestOrdersApi(ApiTestBase):
         params = self.check_call_with(get_mock, root_order_id=[123456789, 987654321])
         assert params["rootOrderId"] == "123456789,987654321"
 
-
     @patch("gmo_fx.api.api_base.get")
     def test_should_call_api_with_empty_root_order_id_list(
         self,
@@ -266,7 +265,6 @@ class TestOrdersApi(ApiTestBase):
         params = self.check_call_with(get_mock, order_id=[123456789, 223456789])
         assert params["orderId"] == "123456789,223456789"
 
-
     @patch("gmo_fx.api.api_base.get")
     def test_should_call_api_with_empty_order_id_list(
         self,
@@ -280,7 +278,9 @@ class TestOrdersApi(ApiTestBase):
         self,
         get_mock: MagicMock,
     ) -> None:
-        params = self.check_call_with(get_mock, root_order_id=[123456789], order_id=[987654321, 555666777])
+        params = self.check_call_with(
+            get_mock, root_order_id=[123456789], order_id=[987654321, 555666777]
+        )
         assert params["rootOrderId"] == "123456789"
         assert params["orderId"] == "987654321,555666777"
 
@@ -289,4 +289,3 @@ class TestOrdersApi(ApiTestBase):
         get_mock.return_value = self.create_response(data={"list": []})
         response = self.call_api()
         assert len(response.orders) == 0
-        

@@ -65,7 +65,7 @@ class OrdersResponse(ResponseBase):
 
     def __init__(self, response: dict):
         super().__init__(response)
-        
+
         data = response["data"]["list"]
         self.orders = [
             Order(
@@ -84,7 +84,9 @@ class OrdersResponse(ResponseBase):
                     d["timestamp"], "%Y-%m-%dT%H:%M:%S.%fZ"
                 ).replace(tzinfo=timezone.utc),
                 client_order_id=d.get("clientOrderId"),
-                cancel_type=Order.CancelType(d["cancelType"]) if d.get("cancelType") else None,
+                cancel_type=(
+                    Order.CancelType(d["cancelType"]) if d.get("cancelType") else None
+                ),
             )
             for d in data
         ]
@@ -117,9 +119,11 @@ class OrdersApi(PrivateApiBase):
     ) -> OrdersResponse:
         query_params = []
         if root_order_id:
-            query_params.append(f"rootOrderId={",".join([str(id) for id in root_order_id])}")
+            query_params.append(
+                f"rootOrderId={','.join([str(id) for id in root_order_id])}"
+            )
         if order_id:
-            query_params.append(f"orderId={",".join([str(id) for id in order_id])}")
-        
+            query_params.append(f"orderId={','.join([str(id) for id in order_id])}")
+
         path_query = "&".join(query_params) if query_params else None
         return super().__call__(path_query=path_query)
