@@ -50,7 +50,7 @@ class Order:
     price: Optional[float]
     status: Status
     cancel_type: Optional[CancelType]
-    expiry: date
+    expiry: Optional[date]
     timestamp: datetime
 
 
@@ -80,7 +80,11 @@ class OrderResponse(ResponseBase):
                     if d.get("cancelType")
                     else None
                 ),
-                expiry=datetime.strptime(d["expiry"], "%Y%m%d").date(),
+                expiry=(
+                    datetime.strptime(d.get("expiry"), "%Y%m%d").date()
+                    if d.get("expiry")
+                    else None
+                ),
                 timestamp=datetime.strptime(
                     d["timestamp"], "%Y-%m-%dT%H:%M:%S.%fZ"
                 ).replace(tzinfo=timezone.utc),
