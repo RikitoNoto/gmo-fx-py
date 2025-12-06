@@ -69,7 +69,7 @@ class TestOrderApi(ApiTestBase):
         price: Optional[float] = 130.5,
         status: str = "WAITING",
         cancel_type: Optional[str] = "PRICE_BOUND",
-        expiry: str = "20220113",
+        expiry: Optional[str] = "20220113",
         timestamp: str = "2019-03-19T02:15:06.059Z",
     ) -> dict:
         data = {
@@ -82,7 +82,6 @@ class TestOrderApi(ApiTestBase):
             "settleType": settle_type,
             "size": str(size),
             "status": status,
-            "expiry": expiry,
             "timestamp": timestamp,
         }
 
@@ -94,6 +93,9 @@ class TestOrderApi(ApiTestBase):
 
         if cancel_type is not None:
             data["cancelType"] = cancel_type
+
+        if expiry is not None:
+            data["expiry"] = expiry
 
         return data
 
@@ -207,6 +209,11 @@ class TestOrderApi(ApiTestBase):
     def test_should_get_expiry(self, post_mock: MagicMock):
         response = self.check_parse_a_data(post_mock, expiry="20190418")
         assert response.orders[0].expiry == datetime(2019, 4, 18).date()
+
+    @patch("gmo_fx.api.api_base.post")
+    def test_should_get_none_without_expiry(self, post_mock: MagicMock):
+        response = self.check_parse_a_data(post_mock, expiry=None)
+        assert response.orders[0].expiry is None
 
     @patch("gmo_fx.api.api_base.post")
     def test_should_get_timestamp(self, post_mock: MagicMock):
