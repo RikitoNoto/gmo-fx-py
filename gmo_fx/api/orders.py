@@ -54,8 +54,8 @@ class Order:
     size: int
     price: Optional[float]
     status: Status
-    expiry: date
-    timestamp: datetime
+    expiry: Optional[date] = None
+    timestamp: datetime = None
     client_order_id: Optional[str] = None
     cancel_type: Optional[CancelType] = None
 
@@ -79,7 +79,11 @@ class OrdersResponse(ResponseBase):
                 size=int(d["size"]),
                 price=float(d["price"]) if d.get("price") else None,
                 status=Order.Status(d["status"]),
-                expiry=datetime.strptime(d["expiry"], "%Y%m%d").date(),
+                expiry=(
+                    datetime.strptime(d["expiry"], "%Y%m%d").date()
+                    if d.get("expiry")
+                    else None
+                ),
                 timestamp=datetime.strptime(
                     d["timestamp"], "%Y-%m-%dT%H:%M:%S.%fZ"
                 ).replace(tzinfo=timezone.utc),
