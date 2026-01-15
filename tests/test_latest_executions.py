@@ -39,7 +39,7 @@ class TestLatestExecutionsApi(ApiTestBase):
         self,
         amount: float = 0.0,
         execution_id: int = 0,
-        client_order_id: str = "id",
+        client_order_id: Optional[str] = None,
         order_id: int = 0,
         position_id: int = 0,
         symbol: str = "USD_JPY",
@@ -47,15 +47,14 @@ class TestLatestExecutionsApi(ApiTestBase):
         settle_type: str = "CLOSE",
         size: int = 1,
         price: float = 0.0,
-        loss_gain: int = 0,
-        fee: int = 0,
+        loss_gain: float = 0.0,
+        fee: float = 0.0,
         settled_swap: float = 0.0,
         timestamp: str = "2022-11-12T13:56:12.02113Z",
     ) -> dict:
-        return {
+        data = {
             "amount": str(amount),
             "executionId": execution_id,
-            "clientOrderId": client_order_id,
             "orderId": order_id,
             "positionId": position_id,
             "symbol": symbol,
@@ -68,6 +67,9 @@ class TestLatestExecutionsApi(ApiTestBase):
             "settledSwap": str(settled_swap),
             "timestamp": timestamp,
         }
+        if client_order_id:
+            data["clientOrderId"] = client_order_id
+        return data
 
     @patch("gmo_fx.api.api_base.get")
     def test_404_error(self, get_mock: MagicMock):
@@ -136,13 +138,13 @@ class TestLatestExecutionsApi(ApiTestBase):
 
     @patch("gmo_fx.api.api_base.get")
     def test_should_get_loss_gain(self, get_mock: MagicMock):
-        execution = self.check_parse_a_data(get_mock, loss_gain=30)
-        assert execution.loss_gain == 30
+        execution = self.check_parse_a_data(get_mock, loss_gain=30.1)
+        assert execution.loss_gain == 30.1
 
     @patch("gmo_fx.api.api_base.get")
     def test_should_get_fee(self, get_mock: MagicMock):
-        execution = self.check_parse_a_data(get_mock, fee=40)
-        assert execution.fee == 40
+        execution = self.check_parse_a_data(get_mock, fee=40.2)
+        assert execution.fee == 40.2
 
     @patch("gmo_fx.api.api_base.get")
     def test_should_get_settled_swap(self, get_mock: MagicMock):
