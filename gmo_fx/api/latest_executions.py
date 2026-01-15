@@ -49,8 +49,8 @@ class LatestExecutionsResponse(ResponseBase):
                 settle_type=SettleType(d["settleType"]),
                 size=int(d["size"]),
                 price=float(d["price"]),
-                loss_gain=int(d["lossGain"]),
-                fee=int(d["fee"]),
+                loss_gain=float(d["lossGain"]),
+                fee=float(d["fee"]),
                 settled_swap=float(d["settledSwap"]),
                 timestamp=datetime.strptime(
                     d["timestamp"], "%Y-%m-%dT%H:%M:%S.%fZ"
