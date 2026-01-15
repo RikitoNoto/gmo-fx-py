@@ -41,7 +41,7 @@ class LatestExecutionsResponse(ResponseBase):
             Execution(
                 amount=float(d["amount"]),
                 execution_id=d["executionId"],
-                client_order_id=d["clientOrderId"],
+                client_order_id=d.get("clientOrderId"),
                 order_id=d["orderId"],
                 position_id=d["positionId"],
                 symbol=Symbol(d["symbol"]),

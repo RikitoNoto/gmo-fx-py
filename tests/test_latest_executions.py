@@ -39,7 +39,7 @@ class TestLatestExecutionsApi(ApiTestBase):
         self,
         amount: float = 0.0,
         execution_id: int = 0,
-        client_order_id: str = "id",
+        client_order_id: Optional[str] = None,
         order_id: int = 0,
         position_id: int = 0,
         symbol: str = "USD_JPY",
@@ -52,10 +52,9 @@ class TestLatestExecutionsApi(ApiTestBase):
         settled_swap: float = 0.0,
         timestamp: str = "2022-11-12T13:56:12.02113Z",
     ) -> dict:
-        return {
+        data = {
             "amount": str(amount),
             "executionId": execution_id,
-            "clientOrderId": client_order_id,
             "orderId": order_id,
             "positionId": position_id,
             "symbol": symbol,
@@ -68,6 +67,9 @@ class TestLatestExecutionsApi(ApiTestBase):
             "settledSwap": str(settled_swap),
             "timestamp": timestamp,
         }
+        if client_order_id:
+            data["clientOrderId"] = client_order_id
+        return data
 
     @patch("gmo_fx.api.api_base.get")
     def test_404_error(self, get_mock: MagicMock):
