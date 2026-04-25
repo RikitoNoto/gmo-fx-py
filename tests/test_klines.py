@@ -1,7 +1,7 @@
 import pytest
 import re
 
-from datetime import datetime
+from datetime import datetime, timezone
 from gmo_fx.api.klines import KlinesApi, KlinesResponse
 from tests.api_test_base import ApiTestBase
 from typing import Callable, Literal, Optional
@@ -62,7 +62,7 @@ class TestKlinesApi(ApiTestBase):
     def test_should_get_klines_from_response_klines_accesser(self, get_mock: MagicMock):
         expect_klines = [
             {
-                "openTime": datetime(i + 1980, 1, 1),
+                "openTime": datetime(i + 1980, 1, 1, tzinfo=timezone.utc),
                 "open": float(i),
                 "high": float(i),
                 "low": float(i),

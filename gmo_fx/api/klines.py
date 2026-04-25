@@ -1,12 +1,11 @@
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Literal
-from requests import get, Response
+from requests import Response
 from gmo_fx.api.api_base import PublicApiBase
 from gmo_fx.api.response import Response as ResponseBase
 from gmo_fx.common import Symbol
-from gmo_fx.urls import BASE_URL_PUBLIC
 
 
 @dataclass
@@ -32,7 +31,9 @@ class KlinesResponse(ResponseBase):
                 high=float(d["high"]),
                 low=float(d["low"]),
                 close=float(d["close"]),
-                open_time=datetime.fromtimestamp(int(d["openTime"]) / 1000),
+                open_time=datetime.fromtimestamp(
+                    int(d["openTime"]) / 1000, tz=timezone.utc
+                ),
             )
             for d in data
         ]
