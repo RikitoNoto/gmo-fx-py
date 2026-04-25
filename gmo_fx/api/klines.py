@@ -31,7 +31,9 @@ class KlinesResponse(ResponseBase):
                 high=float(d["high"]),
                 low=float(d["low"]),
                 close=float(d["close"]),
-                open_time=datetime.fromtimestamp(int(d["openTime"]) / 1000, tz=timezone.utc),
+                open_time=datetime.fromtimestamp(
+                    int(d["openTime"]) / 1000, tz=timezone.utc
+                ),
             )
             for d in data
         ]
