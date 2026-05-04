@@ -87,9 +87,7 @@ class TestActiveOrdersApi(ApiTestBase):
         url: str = get_mock.mock_calls[0].args[0]
         assert url.startswith("https://forex-api.coin.z.com/private/v1/activeOrders")
 
-    def check_parse_a_data(
-        self, get_mock: MagicMock, **kwargs
-    ) -> ActiveOrdersResponse:
+    def check_parse_a_data(self, get_mock: MagicMock, **kwargs) -> ActiveOrdersResponse:
         get_mock.return_value = self.create_response(
             data={"list": [self.create_active_order_data(**kwargs)]}
         )
