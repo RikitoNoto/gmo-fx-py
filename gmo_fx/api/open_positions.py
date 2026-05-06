@@ -85,11 +85,11 @@ class OpenPositionsApi(PrivateApiBase):
         if prev_id:
             if path_query:
                 path_query += "&"
-            path_query = f"prevId={prev_id}"
+            path_query += f"prevId={prev_id}"
 
         if count:
             if path_query:
                 path_query += "&"
-            path_query = f"count={count}"
+            path_query += f"count={count}"
 
         return super().__call__(path_query=path_query)
