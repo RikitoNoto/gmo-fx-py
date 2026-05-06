@@ -127,6 +127,22 @@ class TestOpenPositionApi(ApiTestBase):
         assert "count=12345" in url
 
     @patch("gmo_fx.api.api_base.get")
+    def test_should_call_api_with_symbol_prev_id_and_count(
+        self,
+        get_mock: MagicMock,
+    ) -> None:
+        get_mock.return_value = self.create_response()
+        self.call_api(
+            symbol=OpenPositionsApi.Symbol.GBP_USD,
+            prev_id=67890,
+            count=12345,
+        )
+        url = get_mock.mock_calls[0].args[0]
+        assert "symbol=GBP_USD" in url
+        assert "prevId=67890" in url
+        assert "count=12345" in url
+
+    @patch("gmo_fx.api.api_base.get")
     def test_should_call_api_without_count(
         self,
         get_mock: MagicMock,
