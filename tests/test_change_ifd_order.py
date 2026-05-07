@@ -217,7 +217,9 @@ class TestChangeIfdOrderApi(ApiTestBase):
         assert body["clientOrderId"] == "alfsdj32432enl"
 
     @patch("gmo_fx.api.api_base.post")
-    def test_should_call_api_without_client_order_id(self, post_mock: MagicMock) -> None:
+    def test_should_call_api_without_client_order_id(
+        self, post_mock: MagicMock
+    ) -> None:
         body = self.check_call_with(
             post_mock, client_order_id=None, root_order_id=123456789
         )
