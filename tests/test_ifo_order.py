@@ -259,7 +259,9 @@ class TestIfoOrderApi(ApiTestBase):
         assert body["secondSize"] == "13000"
 
     @patch("gmo_fx.api.api_base.post")
-    def test_should_call_api_with_second_limit_price(self, post_mock: MagicMock) -> None:
+    def test_should_call_api_with_second_limit_price(
+        self, post_mock: MagicMock
+    ) -> None:
         body = self.check_call_with(post_mock, second_limit_price=145.5)
         assert body["secondLimitPrice"] == "145.5"
 
