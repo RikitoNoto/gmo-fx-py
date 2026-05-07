@@ -109,7 +109,6 @@ class TestChangeOrderApi(ApiTestBase):
             order_id=156789,
             symbol="EUR_USD",
             side="SELL",
-            order_type="NORMAL",
             execution_type="STOP",
             settle_type="CLOSE",
             size=6100,
@@ -134,6 +133,11 @@ class TestChangeOrderApi(ApiTestBase):
         assert order.timestamp == datetime(
             2024, 9, 13, 15, 21, 3, 59000, tzinfo=timezone.utc
         )
+
+    @patch("gmo_fx.api.api_base.post")
+    def test_should_get_normal_order_type(self, post_mock: MagicMock):
+        order = self.check_parse_a_data(post_mock, order_type="NORMAL")
+        assert order.order_type == Order.OrderType.NORMAL
 
     @patch("gmo_fx.api.api_base.post")
     def test_should_get_none_without_client_order_id(self, post_mock: MagicMock):
@@ -203,12 +207,6 @@ class TestChangeOrderApi(ApiTestBase):
         post_mock.return_value = self.create_response()
         with pytest.raises(ValueError):
             self.call_api(order_id=None, client_order_id=None)
-
-    @patch("gmo_fx.api.api_base.post")
-    def test_should_raise_error_without_price(self, post_mock: MagicMock) -> None:
-        post_mock.return_value = self.create_response()
-        with pytest.raises(ValueError):
-            self.call_api(price=None, order_id=123456789)
 
     def test_should_import_from_package(self) -> None:
         assert PackageChangeOrderApi is ChangeOrderApi

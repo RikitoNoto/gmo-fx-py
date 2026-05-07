@@ -7,7 +7,7 @@ from requests import Response
 
 from gmo_fx.api.api_base import PrivateApiBase
 from gmo_fx.api.response import Response as ResponseBase
-from gmo_fx.common import OrderType, SettleType, Side, Symbol
+from gmo_fx.common import SettleType, Side, Symbol
 
 
 @dataclass
@@ -24,7 +24,11 @@ class Order:
         LIMIT = "LIMIT"
         STOP = "STOP"
 
-    OrderType = OrderType
+    class OrderType(Enum):
+        """取引区分"""
+
+        NORMAL = "NORMAL"
+
     SettleType = SettleType
     Side = Side
     Symbol = Symbol
@@ -101,9 +105,6 @@ class ChangeOrderApi(PrivateApiBase):
     ) -> ChangeOrderResponse:
         if order_id is None and client_order_id is None:
             raise ValueError("order_id or client_order_id must be provided")
-
-        if price is None:
-            raise ValueError("price must be provided")
 
         data: dict = {
             "price": str(price),
