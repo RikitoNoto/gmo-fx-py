@@ -22,6 +22,13 @@ class TestTickerApi(ApiTestBase):
         "GBP_USD",
         "AUD_USD",
         "NZD_USD",
+        "HUF_JPY",
+        "SEK_JPY",
+        "EUR_GBP",
+        "AUD_NZD",
+        "AUD_CAD",
+        "NZD_CAD",
+        "NOK_SEK",
     ]
 
     SYMBOLS_TABLE = {
@@ -39,6 +46,13 @@ class TestTickerApi(ApiTestBase):
         Ticker.Symbol.GBP_USD: "GBP_USD",
         Ticker.Symbol.AUD_USD: "AUD_USD",
         Ticker.Symbol.NZD_USD: "NZD_USD",
+        Ticker.Symbol.HUF_JPY: "HUF_JPY",
+        Ticker.Symbol.SEK_JPY: "SEK_JPY",
+        Ticker.Symbol.EUR_GBP: "EUR_GBP",
+        Ticker.Symbol.AUD_NZD: "AUD_NZD",
+        Ticker.Symbol.AUD_CAD: "AUD_CAD",
+        Ticker.Symbol.NZD_CAD: "NZD_CAD",
+        Ticker.Symbol.NOK_SEK: "NOK_SEK",
     }
 
     def create_ticker_data(

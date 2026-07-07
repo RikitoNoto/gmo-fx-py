@@ -21,6 +21,13 @@ class TestSymbolsApi(ApiTestBase):
         "GBP_USD",
         "AUD_USD",
         "NZD_USD",
+        "HUF_JPY",
+        "SEK_JPY",
+        "EUR_GBP",
+        "AUD_NZD",
+        "AUD_CAD",
+        "NZD_CAD",
+        "NOK_SEK",
     ]
 
     SYMBOLS_TABLE = {
@@ -38,6 +45,13 @@ class TestSymbolsApi(ApiTestBase):
         Rule.Symbol.GBP_USD: "GBP_USD",
         Rule.Symbol.AUD_USD: "AUD_USD",
         Rule.Symbol.NZD_USD: "NZD_USD",
+        Rule.Symbol.HUF_JPY: "HUF_JPY",
+        Rule.Symbol.SEK_JPY: "SEK_JPY",
+        Rule.Symbol.EUR_GBP: "EUR_GBP",
+        Rule.Symbol.AUD_NZD: "AUD_NZD",
+        Rule.Symbol.AUD_CAD: "AUD_CAD",
+        Rule.Symbol.NZD_CAD: "NZD_CAD",
+        Rule.Symbol.NOK_SEK: "NOK_SEK",
     }
 
     def call_api(
