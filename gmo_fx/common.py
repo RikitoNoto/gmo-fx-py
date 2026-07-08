@@ -18,6 +18,13 @@ class Symbol(Enum):
     GBP_USD = "GBP_USD"
     AUD_USD = "AUD_USD"
     NZD_USD = "NZD_USD"
+    HUF_JPY = "HUF_JPY"
+    SEK_JPY = "SEK_JPY"
+    EUR_GBP = "EUR_GBP"
+    AUD_NZD = "AUD_NZD"
+    AUD_CAD = "AUD_CAD"
+    NZD_CAD = "NZD_CAD"
+    NOK_SEK = "NOK_SEK"
 
 
 class Side(Enum):
