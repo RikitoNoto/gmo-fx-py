@@ -8,7 +8,9 @@ from datetime import datetime
 from enum import auto, Enum
 from gmo_fx.api.response import Response as ApiResponse
 from requests import get, post, Response
-from typing import Any, Optional, Type
+from typing import Any, Optional, Type, Union
+
+TimeoutType = Union[None, float, tuple[float, float]]
 
 
 class ApiBase(ABC):
@@ -18,6 +20,14 @@ class ApiBase(ABC):
         POST = "POST"
 
     VERSION = "v1"
+
+    def __init__(self, timeout: TimeoutType = None) -> None:
+        """
+        timeout: requestsのtimeoutにそのまま渡す値。
+            秒数、または(接続, 読み取り)のタプルを指定する。
+            Noneの場合はタイムアウトしない。
+        """
+        self._timeout = timeout
 
     @property
     @abstractmethod
@@ -73,6 +83,7 @@ class ApiBase(ABC):
             return get(
                 url,
                 headers=self._create_header(),
+                timeout=self._timeout,
             )
         elif self._method == self._HttpMethod.POST:
             req_body = None
@@ -80,7 +91,12 @@ class ApiBase(ABC):
                 self._request_body = data
                 req_body = json.dumps(data)
 
-            return post(url, headers=self._create_header(), data=req_body)
+            return post(
+                url,
+                headers=self._create_header(),
+                data=req_body,
+                timeout=self._timeout,
+            )
         raise ValueError
 
 
@@ -91,10 +107,12 @@ class PublicApiBase(ApiBase, ABC):
 
 
 class PrivateApiBase(ApiBase, ABC):
-    def __init__(self, api_key: str, secret_key: str) -> None:
+    def __init__(
+        self, api_key: str, secret_key: str, timeout: TimeoutType = None
+    ) -> None:
         self._api_key = api_key
         self.__secret_key = secret_key
-        super().__init__()
+        super().__init__(timeout=timeout)
 
     @property
     def _endpoint(self) -> str:
